@@ -3,6 +3,12 @@
 class Vertex {
 public:
 	Vertex(){ p.x = p.y = p.z = 0.f; r = g = b = 0.f; alpha = 1.f; textu = textv = 0.f; }
+	Vertex(float xx, float yy, float zz, int rr, int gg, int bb) {
+		p.x = xx, p.y = yy, p.z = zz;
+		r = rr, g = gg, b = bb;
+		alpha = 1.f;
+		textu = textv = 0.f;
+	}
 	Vertex(const Point &p1) {
 		p.x = p1.x;
 		p.y = p1.y;

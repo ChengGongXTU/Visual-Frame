@@ -28,7 +28,7 @@ public:
 Vertex VertexTransform(const Vertex &v,const Camera &camera) {
 	Vertex newV;
 	newV = v;
-	newV.p = camera.orthView(v.p);
+	newV.p = camera.perView(v.p);
 	return newV;
 }
 
@@ -107,19 +107,17 @@ void CutBox(const Camera &camera, Box *ret) {
 //}
 
 
-void BresenhamAlgorithm(HWND hwnd, const Triangle &tri) {
-
-	hdc = BeginPaint(hwnd, &ps);
+void BresenhamAlgorithm(HDC hdc, const Triangle &tri) {
 
 	Box b = Box(tri.va.p, tri.vb.p);
 	Box c = Union(b, tri.vc.p);
 
 	int x0, y0, x1, y1;;
-	x0 = c.minPoint.x;
-	y0 = c.minPoint.y;
+	x0 = floor(c.minPoint.x);
+	y0 = floor(c.minPoint.y);
 
-	x1 = c.maxPoint.x;
-	y1 = c.maxPoint.y;
+	x1 = ceil(c.maxPoint.x);
+	y1 = ceil(c.maxPoint.y);
 
 	for (int i = x0; i < x1; i++)
 		for (int j = y0; j < y1; j++) {
@@ -127,9 +125,14 @@ void BresenhamAlgorithm(HWND hwnd, const Triangle &tri) {
 			float b = MidPointDistance(i, j, tri.vc.p, tri.va.p) / MidPointDistance(tri.vb.p.x, tri.vb.p.y, tri.vc.p, tri.va.p);
 			float c = MidPointDistance(i, j, tri.va.p, tri.vb.p) / MidPointDistance(tri.vc.p.x, tri.vc.p.y, tri.va.p, tri.vb.p);
 
+			int rp = a*tri.va.r + b*tri.vb.r + c*tri.vc.r;
+			int gp = a*tri.va.g + b*tri.vb.g + c*tri.vc.g;
+			int bp = a*tri.va.b + b*tri.vb.b + c*tri.vc.b;
+
 			if (a > 0 && b > 0 && c > 0)
-				SetPixel(hdc, i, j, RGB(0, 0, 0));
+				SetPixel(hdc, i, h-j, RGB(rp, gp, bp));		
 		}
+
 }
 
 

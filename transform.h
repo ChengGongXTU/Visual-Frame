@@ -304,23 +304,23 @@ Transform LookAt(const Point &eye, const Point &gaze, const Vector &up) {
 	yaxis = Cross(zaxis, xaxis);
 
 	m.m[0][0] = xaxis.x;
-	m.m[1][0] = xaxis.y;
-	m.m[2][0] = xaxis.z;
+	m.m[0][1] = xaxis.y;
+	m.m[0][2] = xaxis.z;
 
-	m.m[0][1] = yaxis.x;
+	m.m[1][0] = yaxis.x;
 	m.m[1][1] = yaxis.y;
-	m.m[2][1] = yaxis.z;
+	m.m[1][2] = yaxis.z;
 
-	m.m[0][2] = zaxis.x;
-	m.m[1][2] = zaxis.y;
+	m.m[2][0] = zaxis.x;
+	m.m[2][1] = zaxis.y;
 	m.m[2][2] = zaxis.z;
 
 	m.m[3][0] = m.m[3][1] = m.m[3][2] = 0.0f;
 	m.m[3][3] = 1.0f;
 
-	m.m[0][3] = -eye.x;
-	m.m[1][3] = -eye.y;
-	m.m[2][3] = -eye.z;
+	m.m[0][3] = -eye.x*xaxis.x - eye.y*xaxis.y - eye.z*xaxis.z;
+	m.m[1][3] = -eye.x*yaxis.x - eye.y*yaxis.y - eye.z*yaxis.z;
+	m.m[2][3] = -eye.x*zaxis.x - eye.y*zaxis.y - eye.z*zaxis.z;
 
 	return Transform(m, Inverse(m));
 }

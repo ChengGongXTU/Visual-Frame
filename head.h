@@ -13,7 +13,7 @@ static HDC hdc;
 PAINTSTRUCT ps;
 char* backbuffer = NULL;
 unsigned int *buffer;
-static int w = 800, h = 800;
+static int w = 800, h = 600;
 HWND hwnd;
 MSG msg;
 auto ClassName = L"Visual Frame";

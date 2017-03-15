@@ -37,11 +37,11 @@ public:
 
 	//compute eye to orthographic projection transform
 	friend Transform EyeToOrth(const float &l,const float &r, const float &b,const float &t,
-		const int &n,const int &f);
+		const float &n,const float &f);
 
 	//compute eye to perspective transform;
 	friend Transform EyeToPer(const float &l,const float &r,const float &b,const float &t,
-		const int &n,const int &f);
+		const float &n,const float &f);
 
 	//compute  projection canonical to viewport 
 	friend Transform ProToView(const int &nx,const int &ny);
@@ -64,7 +64,7 @@ public:
 	Camera() { oLeft = oRight = oBottom = oTop = oNear = oFar = nx = ny = 0.f; };
 
 	Camera(const Point eye, const Point gaze, const Vector upView, const float l, const float r, const float b, const float t,
-		const float n, const float f, const int &nx, const  int &ny) {
+		const float n, const float f, const int &nx, const int &ny) {
 		worldToEye = WorldToEye(eye, gaze, upView);
 		eyeToOrth = EyeToOrth(l, r, b, t, n, f);
 		eyeToPer = EyeToPer(l, r, b, t, n, f);
@@ -82,15 +82,15 @@ Transform WorldToEye(const Point &eye, const Point &gaze, const Vector &upVeiew)
 }
 
 Transform EyeToOrth(const float &l, const float &r, const float &b, const float &t,
-	const int &n, const int &f) {
+	const float &n, const float &f) {
 	Matrix4x4 m;
 	m.m[0][0] = 2.f / (r - l);
 	m.m[1][1] = 2.f / (t - b);
 	m.m[2][2] = 2.f / (f - n);
 
-	m.m[0][3] = -(r + l) / (float)(r - l);
-	m.m[1][3] = -(t + b) / (float)(t - b);
-	m.m[2][3] = -(f + n) / (float)(f - n);
+	m.m[0][3] = -(r + l) / (r - l);
+	m.m[1][3] = -(t + b) / (t - b);
+	m.m[2][3] = -(f + n) / (f - n);
 
 	m.m[0][1] = m.m[0][2] = 0.f;
 	m.m[1][0] = m.m[1][2] = 0.f;
@@ -102,22 +102,22 @@ Transform EyeToOrth(const float &l, const float &r, const float &b, const float 
 }
 
 Transform EyeToPer(const float &l, const float &r, const float &b, const float &t,
-	const int &n, const int &f) {
+	const float &n, const float &f) {
 	Matrix4x4 m;
 	
 	m.m[0][0] = 2*n / (r - l);
 	m.m[1][1] = 2*n / (t - b);
-	m.m[2][2] = (n + f) / (float)(n - f);
+	m.m[2][2] = (n + f) / (n - f);
 
 	m.m[0][3] = 0.f;
 	m.m[1][3] = 0.f;
-	m.m[2][3] = 2 * n*f / (n - f);
+	m.m[2][3] = -2 * n*f / (n - f);
 
 	m.m[0][1] = 0.f;
-	m.m[0][2] = (l + r) / (float)(r - l);
+	m.m[0][2] = (l + r) / (r - l);
 
 	m.m[1][0] = 0.f;
-	m.m[1][2] = (b + t) / (float)(t - b);
+	m.m[1][2] = (b + t) / (t - b);
 	m.m[2][0] = m.m[2][1] = 0.f;
 	m.m[3][0] = m.m[3][1] = 0.f;
 	m.m[3][2] = -1.f;

@@ -41,21 +41,51 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, 
 
 
 LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) {
-	Point p1 = Point(12.f, 3.f, 4.f);
-	Point p2 = Point(7.f, 16.f, 9.f);
-	Point p3 = Point(13.f, 15.f, 12.f);
-	Vertex v1 = Vertex(p1);
-	Vertex v2 = Vertex(p2);
-	Vertex v3 = Vertex(p3);
-	Triangle tri = Triangle(v1, v2, v3);
 
+	//build a model: sqaure.
+	//8 Vertex
+	Vertex v1 = Vertex(-5.f, 0.f, 20.f, 255, 0, 0);
+	Vertex v2 = Vertex(5.f, 0.f, 20.f, 0, 255, 0);
+	Vertex v3 = Vertex(-5.f, 10.f, 20.f, 0, 0, 255);
+	Vertex v4 = Vertex(5.f, 10.f, 20.f, 255, 0, 0);
+	Vertex v5 = Vertex(-5.f, 0.f, 30.f, 255, 0, 0);
+	Vertex v6 = Vertex(5.f, 0.f, 30.f, 0, 255, 0);
+	Vertex v7 = Vertex(-5.f, 10.f, 30.f, 0, 0, 255);
+	Vertex v8 = Vertex(5.f, 10.f, 30.f, 255, 0, 0);
 
-	Point eye = Point(0.f, 0.f, 0.f);
-	Point gaze = Point(0.f, 0.f, 1.f);
+	//12 triangle
+	Triangle t1 = Triangle(v1, v2, v3);
+	Triangle t2 = Triangle(v2, v3, v4);
+	Triangle t3 = Triangle(v2, v4, v6);
+	Triangle t4 = Triangle(v4, v6, v8);
+	Triangle t5 = Triangle(v1, v2, v5);
+	Triangle t6 = Triangle(v2, v5, v6);
+	Triangle t7 = Triangle(v1, v3, v5);
+	Triangle t8 = Triangle(v3, v5, v7);
+	Triangle t9 = Triangle(v3, v4, v7);
+	Triangle t10 = Triangle(v4, v7, v8);
+	Triangle t11 = Triangle(v5, v6, v7);
+	Triangle t12 = Triangle(v6, v7, v8);
+
+	//viewport
+	Point eye = Point(-0.f, 30.f,0.f);
+	Point gaze = Point(-0.f, 0.f, 30.f);
 	Vector upView = Vector(0.f, 1.f, 0.f);
-	Camera camera = Camera(eye, gaze, upView, -20.f, 20.f, -20.f, 20.f, 2.f, 50.f, w, h);
+	Camera camera = Camera(eye, gaze, upView, -12.f, 12.f, -9.f, 9.f, 15.f, 2000.f, w, h);
 
-	Triangle tri1 = TriangleTransform(tri, camera);
+	//transform vertex
+	Triangle tri1 = TriangleTransform(t1, camera);
+	Triangle tri2 = TriangleTransform(t2, camera);
+	Triangle tri3 = TriangleTransform(t3, camera);
+	Triangle tri4 = TriangleTransform(t4, camera);
+	Triangle tri5 = TriangleTransform(t5, camera);
+	Triangle tri6 = TriangleTransform(t6, camera);
+	Triangle tri7 = TriangleTransform(t7, camera);
+	Triangle tri8 = TriangleTransform(t8, camera);
+	Triangle tri9 = TriangleTransform(t9, camera);
+	Triangle tri10 = TriangleTransform(t10, camera);
+	Triangle tri11 = TriangleTransform(t11, camera);
+	Triangle tri12 = TriangleTransform(t12, camera);
 
 	switch (message) {
 	case WM_SIZE:
@@ -64,7 +94,13 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) 
 		return 0;
 
 	case WM_PAINT:
-		BresenhamAlgorithm(hwnd, tri1);
+		//draw square
+		hdc = BeginPaint(hwnd, &ps);
+		BresenhamAlgorithm(hdc, tri10);
+		BresenhamAlgorithm(hdc, tri9);
+		BresenhamAlgorithm(hdc, tri2);
+		BresenhamAlgorithm(hdc, tri1);
+		EndPaint(hwnd, &ps);
 		return 0;
 
 	case WM_DESTROY:
