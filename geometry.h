@@ -215,6 +215,11 @@ public:
 		return *this;
 	}
 
+	Normal &operator=(const Vector &n) {
+		x = n.x, y = n.y, z = n.z;
+		return *this;
+	}
+
 	Normal operator+(const Normal &v) const {  //----------重载+操作符---------------
 		return Normal(x + v.x, y + v.y, z + v.z);
 	}
@@ -296,7 +301,7 @@ inline float AbsDot(const Vector &v1, const Vector &v2) {
 //向量叉乘，得到与2个向量相垂直的1个新向量，也即四边形的面积
 inline Vector Cross(const Vector &v1, const Vector &v2) {      
 	return Vector((v1.y*v2.z) - (v1.z*v2.y),                   
-		(v1.z*v2.x) - (v1.x - v2.z),
+		(v1.z*v2.x) - (v1.x*v2.z),
 		(v1.x*v2.y) - (v1.y*v2.x));
 }
 

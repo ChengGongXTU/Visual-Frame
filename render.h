@@ -1,4 +1,4 @@
-#include"device.h"
+#include"light.h"
 
 class Box {
 public:
@@ -28,7 +28,9 @@ public:
 Vertex VertexTransform(const Vertex &v,const Camera &camera) {
 	Vertex newV;
 	newV = v;
-	newV.p = camera.perView(v.p);
+	newV.p = camera.worldToEye(v.p);
+	newV.p = camera.eyeToPer(newV.p);
+	newV.p = camera.proToView(newV.p);
 	return newV;
 }
 
@@ -37,7 +39,8 @@ Triangle TriangleTransform(const Triangle &tri,const Camera &camera) {
 	newTri.va = VertexTransform(tri.va,camera);
 	newTri.vb = VertexTransform(tri.vb, camera);
 	newTri.vc = VertexTransform(tri.vc, camera);
-	newTri.center = camera.orthView(tri.center);
+	newTri.n = Cross((newTri.va.p - newTri.vb.p), (newTri.va.p - newTri.vc.p));
+	newTri.n = Normalize(newTri.n);
 	return newTri;
 }
 
@@ -107,15 +110,15 @@ void CutBox(const Camera &camera, Box *ret) {
 //}
 
 
-void BresenhamAlgorithm(HDC hdc, const Triangle &tri) {
+void BresenhamAlgorithm(HDC hdc, const Triangle &tri,const PointLight &pl,const Point &eye) {
 
 	Box b = Box(tri.va.p, tri.vb.p);
 	Box c = Union(b, tri.vc.p);
+	Vertex vt;
 
-	int x0, y0, x1, y1;;
+	int x0, y0, x1, y1;
 	x0 = floor(c.minPoint.x);
 	y0 = floor(c.minPoint.y);
-
 	x1 = ceil(c.maxPoint.x);
 	y1 = ceil(c.maxPoint.y);
 
@@ -125,14 +128,72 @@ void BresenhamAlgorithm(HDC hdc, const Triangle &tri) {
 			float b = MidPointDistance(i, j, tri.vc.p, tri.va.p) / MidPointDistance(tri.vb.p.x, tri.vb.p.y, tri.vc.p, tri.va.p);
 			float c = MidPointDistance(i, j, tri.va.p, tri.vb.p) / MidPointDistance(tri.vc.p.x, tri.vc.p.y, tri.va.p, tri.vb.p);
 
-			int rp = a*tri.va.r + b*tri.vb.r + c*tri.vc.r;
-			int gp = a*tri.va.g + b*tri.vb.g + c*tri.vc.g;
-			int bp = a*tri.va.b + b*tri.vb.b + c*tri.vc.b;
+			if (a > 0 && b > 0 && c > 0) {
+				Point p = a*tri.va.p + b*tri.vb.p + c*tri.vc.p;
+					
+				if (p.z > zbuffer[i*w + j] && p.z<1.f&&p.z>-1.f) {
+					zbuffer[i*w + j] = p.z;					
+					int rp = a*tri.va.r + b*tri.vb.r + c*tri.vc.r;
+					int gp = a*tri.va.g + b*tri.vb.g + c*tri.vc.g;
+					int bp = a*tri.va.b + b*tri.vb.b + c*tri.vc.b;
+					vt = Vertex(p.x, p.y, p.z, rp, gp, bp);
+					vt.n = tri.n;
+					if (Dot(vt.n, vt.p-eye) > 0) vt.n = -vt.n;
 
-			if (a > 0 && b > 0 && c > 0)
-				SetPixel(hdc, i, h-j, RGB(rp, gp, bp));		
+					LightCompute(&vt, pl, eye);
+
+					SetPixel(hdc, i, h-j, RGB(vt.r,vt.g,vt.b));
+				}					
+			}				
 		}
 
+}
+
+void RenderPipeline(Triangle &t, Camera &camera, PointLight &pl) {
+
+	Triangle tri = TriangleTransform(t, camera);
+
+	Box b = Box(tri.va.p, tri.vb.p);
+	Box c = Union(b, tri.vc.p);
+	Vertex vt;
+
+	int x0, y0, x1, y1;
+	x0 = floor(c.minPoint.x);
+	x0 = max(0, x0);
+	y0 = floor(c.minPoint.y);
+	y0 = max(0, y0);
+	x1 = ceil(c.maxPoint.x);
+	x1 = min(w, x1);
+	y1 = ceil(c.maxPoint.y);
+	y1 = min(h, y1);
+
+	for (int i = x0; i < x1; i++)
+		for (int j = y0; j < y1; j++) {
+			float a = MidPointDistance(i, j, tri.vb.p, tri.vc.p) / MidPointDistance(tri.va.p.x, tri.va.p.y, tri.vb.p, tri.vc.p);
+			float b = MidPointDistance(i, j, tri.vc.p, tri.va.p) / MidPointDistance(tri.vb.p.x, tri.vb.p.y, tri.vc.p, tri.va.p);
+			float c = MidPointDistance(i, j, tri.va.p, tri.vb.p) / MidPointDistance(tri.vc.p.x, tri.vc.p.y, tri.va.p, tri.vb.p);
+
+			if (a > 0 && b > 0 && c > 0) {
+				Point p = a*t.va.p + b*t.vb.p + c*t.vc.p;
+				float z = a*tri.va.p.z + b*tri.vb.p.z + c*tri.vc.p.z;
+				if (z > zbuffer[i*w + j] && z<1.f&&z>-1.f) {
+					zbuffer[i*w + j] = z;
+					float rp = a*tri.va.r + b*tri.vb.r + c*tri.vc.r;
+					float gp = a*tri.va.g + b*tri.vb.g + c*tri.vc.g;
+					float bp = a*tri.va.b + b*tri.vb.b + c*tri.vc.b;
+
+					vt = Vertex(p.x, p.y, p.z, rp, gp, bp);
+					vt.n = t.n;
+
+					if (Dot(vt.n, p - camera.eye) < 0) vt.n = -vt.n;
+					LightCompute(&vt, pl, camera.eye);
+					vt.r = min(vt.r, 255);
+					vt.g = min(vt.g, 255);
+					vt.b = min(vt.b, 255);
+					SetPixel(hdc, i, h - j, RGB(vt.r, vt.g, vt.b));
+				}
+			}
+		}
 }
 
 

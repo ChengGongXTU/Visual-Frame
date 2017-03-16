@@ -9,17 +9,25 @@
 #include<Windows.h>
 
 static int cxClient, cyClient;
-static HDC hdc;
-PAINTSTRUCT ps;
-char* backbuffer = NULL;
-unsigned int *buffer;
-static int w = 800, h = 600;
-HWND hwnd;
+
+//screen size 
+int w=800, h=600;
+int backcolor[3] = { 255,255,255 };
+
+//windows device
+static HDC hdc = 0;
+HWND hwnd = 0;
 MSG msg;
 auto ClassName = L"Visual Frame";
+PAINTSTRUCT ps;
+
+//z-depth buffer: 
+float* zbuffer = new float[w*h];
+
+//pixel buffer: 4 byte per pixel(a-r-g-b)
+BYTE* pbuffer = new BYTE[4*w*h];
 
 #define M_PI 3.1415926
-
 
 using std::swap;
 using std::min;

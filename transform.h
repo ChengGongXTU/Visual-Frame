@@ -299,9 +299,16 @@ Transform LookAt(const Point &eye, const Point &gaze, const Vector &up) {
 	zaxis = Normalize(zaxis);
 
 	xaxis = Cross(zaxis, up);
+	if (Dot(zaxis, up) <= 0)
+		xaxis = -Normalize(xaxis);
+	else
 	xaxis = Normalize(xaxis);
 
-	yaxis = Cross(zaxis, xaxis);
+	if (Dot(xaxis, zaxis) <= 0)
+		yaxis = -Cross(xaxis, zaxis);
+	else
+		yaxis = Cross(xaxis, zaxis);
+	zaxis = -zaxis;
 
 	m.m[0][0] = xaxis.x;
 	m.m[0][1] = xaxis.y;

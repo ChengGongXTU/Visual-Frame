@@ -3,7 +3,7 @@
 class Vertex {
 public:
 	Vertex(){ p.x = p.y = p.z = 0.f; r = g = b = 0.f; alpha = 1.f; textu = textv = 0.f; }
-	Vertex(float xx, float yy, float zz, int rr, int gg, int bb) {
+	Vertex(float xx, float yy, float zz, float rr, float gg, float bb) {
 		p.x = xx, p.y = yy, p.z = zz;
 		r = rr, g = gg, b = bb;
 		alpha = 1.f;
@@ -25,6 +25,9 @@ public:
 
 	//texture coordinate
 	float textu, textv;
+
+	//normal
+	Normal n;
 
 	Vertex &operator=(const Vertex &v){
 		p = v.p; 
@@ -64,6 +67,8 @@ public:
 		n.x = Cross(v2.p-v1.p, v3.p-v2.p).x;
 		n.y = Cross(v2.p - v1.p, v3.p - v2.p).y;
 		n.z = Cross(v2.p - v1.p, v3.p - v2.p).z;
+
+		n = Normalize(n);
 	}
 
 

@@ -60,18 +60,22 @@ public:
 		return t;
 	}
 
-	//initialization
-	Camera() { oLeft = oRight = oBottom = oTop = oNear = oFar = nx = ny = 0.f; };
 
-	Camera(const Point eye, const Point gaze, const Vector upView, const float l, const float r, const float b, const float t,
+	//initialization
+	Camera() { oLeft = oRight = oBottom = oTop = oNear = oFar = nx = ny = 0.f; }
+
+	Camera(const Point e, const Point g, const Vector up, const float l, const float r, const float b, const float t,
 		const float n, const float f, const int &nx, const int &ny) {
-		worldToEye = WorldToEye(eye, gaze, upView);
+		eye = e;
+		gaze = g;
+		upView = up;
+		worldToEye = WorldToEye(e, g, up);
 		eyeToOrth = EyeToOrth(l, r, b, t, n, f);
 		eyeToPer = EyeToPer(l, r, b, t, n, f);
 		proToView = ProToView(nx, ny);
 		orthView = OrthView();
 		perView = PerView();
-	};
+	}
 
 };
 
@@ -105,26 +109,27 @@ Transform EyeToPer(const float &l, const float &r, const float &b, const float &
 	const float &n, const float &f) {
 	Matrix4x4 m;
 	
-	m.m[0][0] = 2*n / (r - l);
-	m.m[1][1] = 2*n / (t - b);
-	m.m[2][2] = (n + f) / (n - f);
+	m.m[0][0] = 2*(n)/(r-l);
+	m.m[1][1] = 2*(n) / (t - b);
+	m.m[2][2] = (f+n) / (n-f);
 
 	m.m[0][3] = 0.f;
 	m.m[1][3] = 0.f;
-	m.m[2][3] = -2 * n*f / (n - f);
+	m.m[2][3] = 2*(f)*(n)/(f-n);
 
 	m.m[0][1] = 0.f;
-	m.m[0][2] = (l + r) / (r - l);
+	m.m[0][2] = (l+r)/(l-r);
 
 	m.m[1][0] = 0.f;
-	m.m[1][2] = (b + t) / (t - b);
+	m.m[1][2] = (b+t)/(b-t);
 	m.m[2][0] = m.m[2][1] = 0.f;
 	m.m[3][0] = m.m[3][1] = 0.f;
-	m.m[3][2] = -1.f;
+	m.m[3][2] = 1.f;
 	m.m[3][3] = 0.f;
 
 	return Transform(m);
 }
+
 
 Transform ProToView(const int &nx, const int &ny) {
 	Matrix4x4 m;
