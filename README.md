@@ -8,6 +8,15 @@ The gemetry part is build basing on "pbrt"(writing by MATT PHARR and GREG HUMPHR
 
 Update：
 
+2017.3.19:
+
+I put some parameters about radiance into shape part, such as Vertex class. So the vertex can reflect some material feature easily.
+
+1,Add diffuse, Phong reflection and emission parameter into vertex class, the Vertex can be a material surface or light source.
+
+2,Chane the function of light model. The light class can only control luminous intensity, phong reflection pow and ambient light now.
+
+
 2017.3.17：
 
 Light and surafce shading is coming!
