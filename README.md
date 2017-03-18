@@ -12,7 +12,7 @@ Update：
 
 I put some parameters about radiance into shape part, such as Vertex class. So the vertex can reflect some material feature easily.
 
-1,Add diffuse, Phong reflection and emission parameter into vertex class, the Vertex can be a material surface or light source.
+1,Add diffuse, Phong reflection and emission parameter into vertex class, the vertex can be a material surface point or point light source.
 
 2,Chane the function of light model. The light class can only control luminous intensity, phong reflection pow and ambient light now.
 
