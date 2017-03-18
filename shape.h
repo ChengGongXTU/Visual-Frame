@@ -1,27 +1,56 @@
 #include"camera.h"
 
+enum RefType
+{
+	Dif, Spe, Mix   //Diffuse , Specular, Mix Diffuse and Specular;
+};
+
 class Vertex {
 public:
-	Vertex(){ p.x = p.y = p.z = 0.f; r = g = b = 0.f; alpha = 1.f; textu = textv = 0.f; }
-	Vertex(float xx, float yy, float zz, float rr, float gg, float bb) {
+
+	Vertex(){ p.x = p.y = p.z = 0.f; 
+	r = g = b = 0.f; alpha = 1.f; 
+	er = eg = eb = 0.f;
+	pr = pg = pb = 0.f;
+	textu = textv = 0.f;
+	}
+
+	Vertex(float xx, float yy, float zz, float rr, float gg, float bb,float phong) {
 		p.x = xx, p.y = yy, p.z = zz;
 		r = rr, g = gg, b = bb;
-		alpha = 1.f;
+		er = eg = eb = 0.f;
+		pr = pg = pb = phong;
 		textu = textv = 0.f;
 	}
+
+	Vertex(float xx, float yy, float zz, float rr, float gg, float bb, float p1,float p2,float p3) {
+		p.x = xx, p.y = yy, p.z = zz;
+		r = rr, g = gg, b = bb;
+		pr = p1; pg = p2; pb = p3;
+		er = eg = eb = 0.f;
+		textu = textv = 0.f;
+
+	}
+
 	Vertex(const Point &p1) {
 		p.x = p1.x;
 		p.y = p1.y;
 		p.z = p1.z;
-		r = g = b = 0.f;
-		alpha = 1.0f;
-		textu = textv = 0.f;
 	}
 	//position
 	Point p;
 
-	//color
+	//reflection type
+	RefType refType;
+
+	//diffuse reflection (color)
 	float r, g, b, alpha;
+
+	//emission (light source)
+	float er, eg, eb;
+
+	//Phong reflection (mirror reflection)
+	float pr, pg, pb;
 
 	//texture coordinate
 	float textu, textv;
@@ -32,7 +61,10 @@ public:
 	Vertex &operator=(const Vertex &v){
 		p = v.p; 
 		r = v.r; g = v.g; b = v.b; alpha = v.alpha;
+		er = v.er; eg = v.eg; eb = v.eb;
+		pr = v.pr; pg = v.pg; pb = v.pb;
 		textu = v.textu; textv = v.textv;
+		n = v.n;
 		return *this;
 	}
 	

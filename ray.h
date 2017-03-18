@@ -21,7 +21,7 @@ public:
 	}
 
 	Ray(const Point &p, const Vector &v, float tmin, float tmax, float tx) {
-		o = p; d = v; t0 = tmin; t1 = tmax; t = tx;
+		o = p; d = Normalize(v); t0 = tmin; t1 = tmax; t = tx;
 	}
 
 	//get a point from t
@@ -56,3 +56,5 @@ float intersection(const Ray &r, const Triangle &t) {
 	else
 		return tx;
 }
+
+

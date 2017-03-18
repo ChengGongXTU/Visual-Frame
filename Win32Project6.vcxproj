@@ -154,6 +154,7 @@
     <ClInclude Include="geometry.h" />
     <ClInclude Include="head.h" />
     <ClInclude Include="light.h" />
+    <ClInclude Include="ray trace.h" />
     <ClInclude Include="ray.h" />
     <ClInclude Include="render.h" />
     <ClInclude Include="shape.h" />

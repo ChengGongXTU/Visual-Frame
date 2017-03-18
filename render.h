@@ -133,10 +133,14 @@ void BresenhamAlgorithm(HDC hdc, const Triangle &tri,const PointLight &pl,const 
 					
 				if (p.z > zbuffer[i*w + j] && p.z<1.f&&p.z>-1.f) {
 					zbuffer[i*w + j] = p.z;					
-					int rp = a*tri.va.r + b*tri.vb.r + c*tri.vc.r;
-					int gp = a*tri.va.g + b*tri.vb.g + c*tri.vc.g;
-					int bp = a*tri.va.b + b*tri.vb.b + c*tri.vc.b;
-					vt = Vertex(p.x, p.y, p.z, rp, gp, bp);
+					float rp = a*tri.va.r + b*tri.vb.r + c*tri.vc.r;
+					float gp = a*tri.va.g + b*tri.vb.g + c*tri.vc.g;
+					float bp = a*tri.va.b + b*tri.vb.b + c*tri.vc.b;
+					float p1 = a*tri.va.pr + b*tri.vb.pr + c*tri.vc.pr;
+					float p2 = a*tri.va.pg + b*tri.vb.pg + c*tri.vc.pg;
+					float p3 = a*tri.va.pb + b*tri.vb.pb + c*tri.vc.pb;
+
+					vt = Vertex(p.x, p.y, p.z, rp, gp, bp,p1,p2,p3);
 					vt.n = tri.n;
 					if (Dot(vt.n, vt.p-eye) > 0) vt.n = -vt.n;
 
@@ -169,6 +173,7 @@ void RenderPipeline(Triangle &t, Camera &camera, PointLight &pl) {
 
 	for (int i = x0; i < x1; i++)
 		for (int j = y0; j < y1; j++) {
+			
 			float a = MidPointDistance(i, j, tri.vb.p, tri.vc.p) / MidPointDistance(tri.va.p.x, tri.va.p.y, tri.vb.p, tri.vc.p);
 			float b = MidPointDistance(i, j, tri.vc.p, tri.va.p) / MidPointDistance(tri.vb.p.x, tri.vb.p.y, tri.vc.p, tri.va.p);
 			float c = MidPointDistance(i, j, tri.va.p, tri.vb.p) / MidPointDistance(tri.vc.p.x, tri.vc.p.y, tri.va.p, tri.vb.p);
@@ -181,20 +186,111 @@ void RenderPipeline(Triangle &t, Camera &camera, PointLight &pl) {
 					float rp = a*tri.va.r + b*tri.vb.r + c*tri.vc.r;
 					float gp = a*tri.va.g + b*tri.vb.g + c*tri.vc.g;
 					float bp = a*tri.va.b + b*tri.vb.b + c*tri.vc.b;
+					float p1 = a*tri.va.pr + b*tri.vb.pr + c*tri.vc.pr;
+					float p2 = a*tri.va.pg + b*tri.vb.pg + c*tri.vc.pg;
+					float p3 = a*tri.va.pb + b*tri.vb.pb + c*tri.vc.pb;
 
-					vt = Vertex(p.x, p.y, p.z, rp, gp, bp);
+					vt = Vertex(p.x, p.y, p.z, rp, gp, bp, p1, p2, p3);
 					vt.n = t.n;
 
-					if (Dot(vt.n, p - camera.eye) < 0) vt.n = -vt.n;
+					if (Dot(Normalize(vt.n), Normalize(p - camera.eye)) < 0) vt.n = -vt.n;
 					LightCompute(&vt, pl, camera.eye);
-					vt.r = min(vt.r, 255);
-					vt.g = min(vt.g, 255);
-					vt.b = min(vt.b, 255);
+
+					vt.r = min(vt.r * 255, 255);
+					vt.g = min(vt.g * 255, 255);
+					vt.b = min(vt.b * 255, 255);
+
 					SetPixel(hdc, i, h - j, RGB(vt.r, vt.g, vt.b));
 				}
 			}
 		}
 }
+
+//void RenderPipeline(Triangle &t, Camera &camera, PointLight &pl,int n) 
+//{
+//
+//	Triangle tri = TriangleTransform(t, camera);
+//
+//	Box b = Box(tri.va.p, tri.vb.p);
+//	Box c = Union(b, tri.vc.p);
+//	Vertex vt;
+//
+//	int x0, y0, x1, y1;
+//	x0 = floor(c.minPoint.x);
+//	x0 = max(0, x0);
+//	y0 = floor(c.minPoint.y);
+//	y0 = max(0, y0);
+//	x1 = ceil(c.maxPoint.x);
+//	x1 = min(w, x1);
+//	y1 = ceil(c.maxPoint.y);
+//	y1 = min(h, y1);
+//
+//	for (int i = x0; i < x1; i++)
+//		for (int j = y0; j < y1; j++) 
+//		{
+//
+//			float cr = 0; float cg = 0; float cb = 0;
+//			int draw = 0;
+//
+//			float a = MidPointDistance(i, j, tri.vb.p, tri.vc.p) / MidPointDistance(tri.va.p.x, tri.va.p.y, tri.vb.p, tri.vc.p);
+//			float b = MidPointDistance(i, j, tri.vc.p, tri.va.p) / MidPointDistance(tri.vb.p.x, tri.vb.p.y, tri.vc.p, tri.va.p);
+//			float c = MidPointDistance(i, j, tri.va.p, tri.vb.p) / MidPointDistance(tri.vc.p.x, tri.vc.p.y, tri.va.p, tri.vb.p);
+//
+//			if (a > 0 && b > 0 && c > 0) 
+//			{
+//				float z = a*tri.va.p.z + b*tri.vb.p.z + c*tri.vc.p.z;
+//				if (z > zbuffer[i*w + j] && z<1.f&&z>-1.f) 
+//				{
+//					zbuffer[i*w + j] = z;
+//					for (float p = 0; p < n - 1; p++) 
+//					{					
+//						for (float q = 0; q < n - 1; q++) 
+//						{
+//							float x = i - 0.5 + (p + 0.5) / n;
+//							float y = j - 0.5 + (q + 0.5) / n;
+//
+//							a = MidPointDistance(x, y, tri.vb.p, tri.vc.p) / MidPointDistance(tri.va.p.x, tri.va.p.y, tri.vb.p, tri.vc.p);
+//							b = MidPointDistance(x, y, tri.vc.p, tri.va.p) / MidPointDistance(tri.vb.p.x, tri.vb.p.y, tri.vc.p, tri.va.p);
+//							c = MidPointDistance(x, y, tri.va.p, tri.vb.p) / MidPointDistance(tri.vc.p.x, tri.vc.p.y, tri.va.p, tri.vb.p);
+//
+//
+//							if (a > 0 && b > 0 && c > 0) 
+//							{
+//								Point p = a*t.va.p + b*t.vb.p + c*t.vc.p;
+//								float rp = a*tri.va.r + b*tri.vb.r + c*tri.vc.r;
+//								float gp = a*tri.va.g + b*tri.vb.g + c*tri.vc.g;
+//								float bp = a*tri.va.b + b*tri.vb.b + c*tri.vc.b;
+//
+//								vt = Vertex(p.x, p.y, p.z, rp, gp, bp);
+//								vt.n = t.n;
+//
+//								if (Dot(Normalize(vt.n), Normalize(p - camera.eye)) < 0) vt.n = -vt.n;
+//								LightCompute(&vt, pl, camera.eye);
+//								cr = cr+min(vt.r, 255);
+//								cg = cg+min(vt.g, 255);
+//								cb = cb+min(vt.b, 255);
+//							}
+//							else {
+//								cr = cr + (int)pbuffer[i*4*w + 4*j+1];
+//								cg = cg + (int)pbuffer[i*4*w + 4*j+2];
+//								cb = cb + (int)pbuffer[i*4*w + 4*j+3];
+//							}
+//				
+//						}
+//					}
+//					cr = min(cr / (n*n), 255);
+//					cg = min(cg / (n*n), 255);
+//					cb = min(cb / (n*n), 255);
+//					pbuffer[i * 4 * w + 4 * j + 1] = (BYTE)cr;
+//					pbuffer[i * 4 * w + 4 * j + 2] = (BYTE)cg;
+//					pbuffer[i * 4 * w + 4 * j + 3] = (BYTE)cb;
+//
+//					SetPixel(hdc, i, h - j, RGB((int)cr, (int)cg, (int)cb));
+//				}
+//			}
+//			
+//		}
+//}
 
 
 
