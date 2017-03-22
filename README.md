@@ -19,7 +19,7 @@ I create a radiance part and a pathtracing part to  implement ray trace algorith
 3,Add a path trace part. The tracing depth, sample number, triangle array, pixel number, subpixel number and so on, can be imported to
 this pathtrace function.
 
-4,Change Vertex class, is has reflection type now.
+4,Change Vertex class, it has reflection type now.
 
 5,Add a 400x400 pixels "Cornell Box" image by seting 5 depth, 2x2 subpixel per pixel, and 40 samples per subpixel. 
 
