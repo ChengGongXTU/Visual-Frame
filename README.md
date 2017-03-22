@@ -8,6 +8,22 @@ The gemetry part is build basing on "pbrt"(writing by MATT PHARR and GREG HUMPHR
 
 Update：
 
+2017.3.23
+
+I create a radiance part and a pathtracing part to  implement ray trace algorithm. To solve the image noise, I read Kevin Beason's "smallpt: Global Illumination in 99 lines of C++" (http://www.kevinbeason.com/smallpt/), and add Russian roulette method into recursion.
+
+1, Creat a "Cornell Box" in "Window.cpp"
+
+2,Add a radiance part, including interpolation equation to compute the property of each point, such as emission and diffuse parameters.
+
+3,Add a path trace part. The tracing depth, sample number, triangle array, pixel number, subpixel number and so on, can be imported to
+this pathtrace function.
+
+4,Change Vertex class, is has reflection type now.
+
+5,Add a 400x400 pixels "Cornell Box" image by seting 5 depth, 2x2 subpixel per pixel, and 40 samples per subpixel. 
+
+
 2017.3.19:
 
 I put some parameters about radiance into shape part, such as Vertex class. So the vertex can reflect some material feature easily.
