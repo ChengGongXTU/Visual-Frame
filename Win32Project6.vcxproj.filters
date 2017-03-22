@@ -47,7 +47,13 @@
     <ClInclude Include="light.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="ray trace.h">
+    <ClInclude Include="Radiance.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="pathtrace.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="rand.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

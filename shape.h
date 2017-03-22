@@ -2,7 +2,7 @@
 
 enum RefType
 {
-	Dif, Spe, Mix   //Diffuse , Specular, Mix Diffuse and Specular;
+	Dif, Spe, Mix,Lum   //Diffuse , Specular, Mix Diffuse and Specular,Luminaire;
 };
 
 class Vertex {
@@ -13,14 +13,25 @@ public:
 	er = eg = eb = 0.f;
 	pr = pg = pb = 0.f;
 	textu = textv = 0.f;
+	refType = Dif;
 	}
 
-	Vertex(float xx, float yy, float zz, float rr, float gg, float bb,float phong) {
+	Vertex(float xx, float yy, float zz, float rr, float gg, float bb,float phong,RefType rt) {
 		p.x = xx, p.y = yy, p.z = zz;
 		r = rr, g = gg, b = bb;
 		er = eg = eb = 0.f;
 		pr = pg = pb = phong;
 		textu = textv = 0.f;
+		refType = rt;
+	}
+
+	Vertex(float xx, float yy, float zz, float rr, float gg, float bb, float phong,float e, RefType rt) {
+		p.x = xx, p.y = yy, p.z = zz;
+		r = rr, g = gg, b = bb;
+		er = eg = eb = e;
+		pr = pg = pb = phong;
+		textu = textv = 0.f;
+		refType = rt;
 	}
 
 	Vertex(float xx, float yy, float zz, float rr, float gg, float bb, float p1,float p2,float p3) {
@@ -65,6 +76,7 @@ public:
 		pr = v.pr; pg = v.pg; pb = v.pb;
 		textu = v.textu; textv = v.textv;
 		n = v.n;
+		refType = v.refType;
 		return *this;
 	}
 	
@@ -80,6 +92,9 @@ public:
 
 	//normal of triangle
 	Normal n;
+
+	//initialization
+	Triangle(){}
 
 	//Triangle = another Triangle
 	Triangle &operator=(const Triangle &tri) {
@@ -172,7 +187,27 @@ float MidPointDistance(int x, int y,const Point &p0,const Point &p1) {
 	return f;
 }
 
+float MidPointDistance(float x, float y, const Point &p0, const Point &p1) {
+	double f = (p0.y - p1.y)*x + (p1.x - p0.x)*y + p0.x*p1.y - p1.x*p0.y;
+	return f;
+}
 
+
+Point Tri3DBarycentric(const Point &p, const Triangle &tri) {
+	Vector na = Cross((tri.vc.p - tri.vb.p), (p - tri.vb.p));
+	Vector nb = Cross((tri.va.p - tri.vc.p), (p - tri.vc.p));
+	Vector nc = Cross((tri.vb.p - tri.va.p), (p - tri.va.p));
+
+	Vector n = Cross((tri.vb.p - tri.va.p), (tri.vc.p - tri.va.p));
+
+	float a = Dot(n, na) / n.LengthSquared();
+	float b = Dot(n, nb) / n.LengthSquared();
+	float c = Dot(n, nc) / n.LengthSquared();
+
+	return Point(a, b, c);
+
+
+}
 
 
 

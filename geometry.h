@@ -6,7 +6,7 @@ public:
 	Vector() { x = y = z = 0.f; }
 
 	//将xx,yy,zz赋值给函数内的xyz
-	Vector(float xx, float yy, float zz) 
+	Vector(float xx, float yy, float zz)
 		: x(xx), y(yy), z(zz) {         
 	}
 

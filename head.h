@@ -7,12 +7,17 @@
 #include<string.h>
 #include<string>
 #include<Windows.h>
+#include<time.h>
+#include"rand.h"
+#include<random>
 
 static int cxClient, cyClient;
+std::default_random_engine generator(time(NULL));
+std::uniform_real_distribution<double> dis(0.0, 1.0);
 
 //screen size 
-int w=800, h=600;
-int backcolor[3] = { 255,255,255 };
+int w=400, h=400;
+float backcolor[3] = { 0.f,0.f,0.f };
 
 //windows device
 static HDC hdc = 0;

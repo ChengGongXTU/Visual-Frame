@@ -65,14 +65,22 @@ public:
 	Camera() { oLeft = oRight = oBottom = oTop = oNear = oFar = nx = ny = 0.f; }
 
 	Camera(const Point e, const Point g, const Vector up, const float l, const float r, const float b, const float t,
-		const float n, const float f, const int &nx, const int &ny) {
+		const float n, const float f, const int &x, const int &y) {
 		eye = e;
 		gaze = g;
 		upView = up;
+		oLeft = l;
+		oRight = r;
+		oBottom = b;
+		oTop = t;
+		oNear = n;
+		oFar = f;
+		nx = x;
+		ny = y;
 		worldToEye = WorldToEye(e, g, up);
 		eyeToOrth = EyeToOrth(l, r, b, t, n, f);
 		eyeToPer = EyeToPer(l, r, b, t, n, f);
-		proToView = ProToView(nx, ny);
+		proToView = ProToView(x, y);
 		orthView = OrthView();
 		perView = PerView();
 	}

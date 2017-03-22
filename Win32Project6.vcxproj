@@ -89,10 +89,19 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
+      <OpenMPSupport>true</OpenMPSupport>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <HeapReserveSize>
+      </HeapReserveSize>
+      <StackReserveSize>
+      </StackReserveSize>
+      <HeapCommitSize>
+      </HeapCommitSize>
+      <StackCommitSize>
+      </StackCommitSize>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -154,7 +163,9 @@
     <ClInclude Include="geometry.h" />
     <ClInclude Include="head.h" />
     <ClInclude Include="light.h" />
-    <ClInclude Include="ray trace.h" />
+    <ClInclude Include="pathtrace.h" />
+    <ClInclude Include="Radiance.h" />
+    <ClInclude Include="rand.h" />
     <ClInclude Include="ray.h" />
     <ClInclude Include="render.h" />
     <ClInclude Include="shape.h" />
