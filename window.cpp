@@ -55,7 +55,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) 
 
 	float phong = 5.f;
 	float red = 0.75,f;
-	float green = 0.75f;
+	float green = 0.55f;
+	float white = 0.9f;
 
 	//white floor
 	Vertex vf1 = Vertex(552.8f, 0.f, 0.f, 0.75f,0.75f, 0.75f, phong,Dif);
@@ -76,10 +77,10 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) 
 	//Vertex vh8 = Vertex(472.f, 0.f, 406.f, 0.8, 0.1, 0.1, phong, Dif);
 
 	////Light source
-	Vertex vli1 = Vertex(343.f, 545.8f, 227.f, 0.75, 0.75, 0.75, phong, 12.f, Dif);
-	Vertex vli2 = Vertex(343.f, 545.8f, 332.f, 0.75, 0.75, 0.75, phong, 12.f, Dif);
-	Vertex vli3 = Vertex(213.f, 545.8f, 332.f, 0.75, 0.75, 0.75, phong, 12.f, Dif);
-	Vertex vli4 = Vertex(213.f, 545.8f, 227.f, 0.75, 0.75, 0.75, phong, 12.f, Dif);
+	Vertex vli1 = Vertex(343.f, 545.8f, 227.f, 0.75, 0.75, 0.75, phong, 18.f, Lum);
+	Vertex vli2 = Vertex(343.f, 545.8f, 332.f, 0.75, 0.75, 0.75, phong, 18.f, Lum);
+	Vertex vli3 = Vertex(213.f, 545.8f, 332.f, 0.75, 0.75, 0.75, phong, 18.f, Lum);
+	Vertex vli4 = Vertex(213.f, 545.8f, 227.f, 0.75, 0.75, 0.75, phong, 18.f, Lum);
 
 	
 
@@ -114,8 +115,31 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) 
 	Vertex vr3 = Vertex(556.f, 548.8f, 559.2f, 0.2f, green, 0.2f, phong, Dif);
 	Vertex vr4 = Vertex(556.f, 548.8f, 0.f, 0.2f, green, 0.2f, phong, Dif);
 
-	
+	// Tall block
+	Vertex vt1 = Vertex(423.0, 330.0, 247.0, 0.f, .0, white, phong, Dif);
+	Vertex vt2 = Vertex(265.0, 330.0, 296.0, .0, .0, white, phong, Dif);
+	Vertex vt3 = Vertex(314.0, 330.0, 456.0, .0, .0, white, phong, Dif);
+	Vertex vt4 = Vertex(472.0, 330.0, 406.0, .0, .0, white, phong, Dif);
+		
+	Vertex vt5 = Vertex(423.0,   0.0, 247.0, .0, .0, white, phong, Dif);
+	Vertex vt6 = Vertex(265.0,   0.0, 296.0, .0, .0, white, phong, Dif);
+	Vertex vt7 = Vertex(314.0,   0.0, 456.0, .0, .0, white, phong, Dif);
+	Vertex vt8 = Vertex(472.0,   0.0, 406.0, .0, .0, white, phong, Dif);
+
+
 	//build some triangle for cornell box
+
+	//Tall block
+	Triangle tt1 = Triangle(vt1, vt2, vt3);
+	Triangle tt2 = Triangle(vt1, vt3, vt4);
+	Triangle tt3 = Triangle(vt1, vt2, vt6);
+	Triangle tt4 = Triangle(vt1, vt6, vt5);
+	Triangle tt5 = Triangle(vt2, vt6, vt7);
+	Triangle tt6 = Triangle(vt2, vt7, vt3);
+	Triangle tt7 = Triangle(vt3, vt7, vt8);
+	Triangle tt8 = Triangle(vt3, vt8, vt4);
+	Triangle tt9 = Triangle(vt4, vt8, vt5);
+	Triangle tt10 = Triangle(vt4, vt5, vt1);
 
 	//floor
 	Triangle tf1 = Triangle(vf1, vf2, vf3);
@@ -142,7 +166,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) 
 	Triangle tl2 = Triangle(vl1, vl3, vl4);
 
 
-	Triangle tri[12] = { tf1,tf2,tc1,tc2,tb1,tb2,tr1,tr2,tl1,tl2,tli1,tli2};
+	Triangle tri[22] = { tf1,tf2,tc1,tc2,tb1,tb2,tr1,tr2,tl1,tl2,tli1,tli2,tt1,tt2,tt3,tt4,tt5,tt6,tt7,tt8,tt9,tt10};
 
 
 	//viewport
@@ -164,13 +188,13 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) 
 	case WM_PAINT:
 		//draw square
 		hdc = BeginPaint(hwnd, &ps);
-		for (int i = 0; i < 12; i++)
+		for (int i = 0; i < 22; i++)
 			RenderPipeline(tri[i], camera, pl);
 		EndPaint(hwnd, &ps);
 		return 0;
 
 	case WM_KEYDOWN:
-		if (wParam == VK_SPACE)	bool test = PathTrace(w, h,2, camera, tri,12,5,40);
+		if (wParam == VK_SPACE)	bool test = PathTrace(w, h,2, camera, tri,22,5,8);
 
 	case WM_DESTROY:
 		delete zbuffer;
