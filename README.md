@@ -14,8 +14,23 @@ HOW TO USE IT?  Put it into visual studio 2015，and write function in "window.c
 Maybe I will create a menu and some button in main window,but I need to write more fundamental function before.
 
 
-
 Update：
+
+2017.3.29:
+
+Recently, I find the ray trace efficiency of my code is tooooooooooo low!!!!!!!!!!! I will optimize my data structure and GDI aprt.
+
+I also think that the parallel computing of GPU is a attractive method to improve the  ray trace and real-time render's efficiency.
+
+Now. it's time to pick up DirectX, and extend new functions!
+
+
+1，Add a LoadObj function to load ".obj" model, and return a triangle mesh. Now, ray trace and renderpipeline can  handle multiple triangle meshes.
+
+2, Add OpenMP to compute path trace algorithm.
+
+3, I discard GDI's setpixel, and combine backbuffer with DIB to show the image.
+ 
 
 2017.3.23
 
