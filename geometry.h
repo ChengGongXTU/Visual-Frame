@@ -280,6 +280,7 @@ public:
 
 	//normal¡¯s component
 	float x, y, z;
+
 };
 
 

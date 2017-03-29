@@ -10,6 +10,13 @@
 #include<time.h>
 #include"rand.h"
 #include<random>
+#include<fstream>
+#include<iostream>
+#include<istream>
+#include<sstream>
+#include<vector>
+
+using namespace std;
 
 static int cxClient, cyClient;
 std::default_random_engine generator(time(NULL));
@@ -25,6 +32,11 @@ HWND hwnd = 0;
 MSG msg;
 auto ClassName = L"Visual Frame";
 PAINTSTRUCT ps;
+HBITMAP hBitmap;
+BYTE* pBits;
+BITMAPINFOHEADER bmih;
+BITMAP bitmap;
+HDC hdcmem;
 
 //z-depth buffer: 
 float* zbuffer = new float[w*h];
@@ -50,6 +62,47 @@ inline float LineInter(float a, float b, float t) {
 
 struct Matrix4x4;
 
+bool FindFace(string &str, int &j,int &k,int &l) {
 
+	int charNum = str.length();
+	int begin = 0;
+	int end = 0;
+	string a;
+	string b;
+	string c;
+
+	for (int i = 0; i < charNum; i++) {
+		if ((int)str[i] == 47) {
+			begin = i;
+			break;
+		}
+	}
+
+	for (int i = begin + 1; i < charNum; i++) {
+		if ((int)str[i] == 47) {
+			end = i;
+			break;
+		}
+	}
+
+	if (begin == 0 && end == 0) {
+		return false;
+	}
+
+	a = str.substr(0, begin - 0);
+
+	if ((end - begin) != 1) {
+		b = str.substr(begin + 1, end - begin - 1);
+		k = atoi(b.c_str()) - 1;
+	}
+	else
+		k = 0;
+
+	c = str.substr(end + 1, charNum - end - 1);
+	j = atoi(a.c_str())-1;
+	l = atoi(c.c_str())-1;
+
+	return true;
+}
 
 

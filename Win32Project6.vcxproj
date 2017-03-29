@@ -94,14 +94,10 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <HeapReserveSize>
-      </HeapReserveSize>
-      <StackReserveSize>
-      </StackReserveSize>
-      <HeapCommitSize>
-      </HeapCommitSize>
-      <StackCommitSize>
-      </StackCommitSize>
+      <HeapReserveSize>16000000</HeapReserveSize>
+      <StackReserveSize>16000000</StackReserveSize>
+      <HeapCommitSize>16000000</HeapCommitSize>
+      <StackCommitSize>16000000</StackCommitSize>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">

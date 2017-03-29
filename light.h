@@ -33,9 +33,11 @@ public:
 
 void LightCompute( Vertex *v, const PointLight &l,const Point &eye) {
 
-	float cosA = Dot(Normalize(v->n), Normalize(v->p - l.o));
-	Vector h = Normalize((v->p - eye) + (v->p - l.o));	
+	float cosA = Dot(Normalize(v->n), Normalize(l.o - v->p ));
+	if (cosA < 0) cosA = 0;
+	Vector h = Normalize(( eye - v->p) + (l.o -v->p ));	
 	float cosB = Dot(Normalize(v->n), h);
+	if (cosB < 0) cosB = 0;
 
 	v->r = v->r*l.amb[0] + v->er + v->r*l.lum[0] * max(0.f, cosA) + v->pr*l.lum[0] * pow(max(0.f, cosB), l.refp);
 	v->g = v->g*l.amb[1] + v->eg + v->g*l.lum[1] * max(0.f, cosA) + v->pg*l.lum[1] * pow(max(0.f, cosB), l.refp);

@@ -2,7 +2,7 @@
 
 enum RefType
 {
-	Dif, Spe, Mix,Lum   //Diffuse , Specular, Mix Diffuse and Specular,Luminaire;
+	Dif, Spe, Mix,Ani,Lum   //Diffuse , Specular, Mix Diffuse and Specular,Luminaire;
 };
 
 class Vertex {
@@ -133,21 +133,43 @@ public:
 	//number of vertex
 	int verNum;
 
-	//pointer to an array of vertex
-	Vertex *v;
+	int nNum;
+
+	// pointer to ith triangle's vertex indices
+	int *vi;
+
+	//vertex's texture indices
+	int* uvi;
+
+	//pointer to an array of vertex's position
+	Point *p;
 
 	//pointer to an array of triangles' normal
 	Normal *n;
 
-	//pointer to an array of triangle vertex's index
-	int *verIndex;
+	//vertex normal's indices
+	int* ni;
+
+	//pointer to texture per vertex
+	float *uv;
+
+	RefType reftype;
 
 	//initialization
 	TriangleMesh() {
-		triNum = verNum = 0.f;
-		v = NULL;
+		triNum = verNum = nNum = 0.f;
+		vi = NULL;
+		p = NULL;
 		n = NULL;
-		verIndex = NULL;
+		uv = NULL;
+		uvi = NULL;
+	}
+
+	//suface normal
+	Vector Nor(int objId) {
+		Normal n0 = n[ni[objId * 3]] + n[ni[objId * 3 + 1]] + n[ni[objId * 3 + 2]];
+		Vector v0 = Normalize(Vector(n0.x, n0.y, n0.z));
+		return v0;
 	}
 
 	friend class Triangle;
@@ -211,3 +233,130 @@ Point Tri3DBarycentric(const Point &p, const Triangle &tri) {
 
 
 
+void LoadObj(TriangleMesh &mesh,string fileName) {
+
+	ifstream fl(fileName);
+	string line;
+	stringstream ss;
+	string word;
+	vector<float> vp;
+	vp.reserve(5000);
+	vector<float> vn;
+	vn.reserve(5000);
+	vector<int> vni;
+	vni.reserve(5000);
+	vector<int> vtri;
+	vtri.reserve(5000);
+	//vector<float> vuv;
+	//vector<int> vuvi;
+	//vuvi.swap(vector<int>());
+
+	int pNum = 0, triNum = 0, nNum = 0;
+	int j, k, l;
+	float a, b, c;
+	string as, bs, cs;
+
+	//if (!fl)	return false;
+
+	while (getline(fl, line)) {
+		ss.clear();
+		ss.str(line);
+		ss >> word;
+		if ((int)word[0] == 118 && (int)word[1] == NULL) {
+			pNum++;
+			ss >> a >> b >> c;
+			vp.push_back(a);
+			vp.push_back(b);
+			vp.push_back(c);
+			continue;
+		}
+
+		if ((int)word[0] == 118 && (int)word[1] == 110) {
+			nNum++;
+			ss >> a >> b >> c;
+			vn.push_back(a);
+			vn.push_back(b);
+			vn.push_back(c);
+			continue;
+		}
+
+		if ((int)word[0] == 102 && (int)word[1] == NULL) {
+			triNum++;
+			ss >> as >> bs >> cs;
+			FindFace(as, j, k, l);
+			vtri.push_back(j);
+			//vuvi.push_back(k);
+			vni.push_back(l);
+
+			FindFace(bs, j, k, l);
+			vtri.push_back(j);
+			//vuvi.push_back(k);
+			vni.push_back(l);
+
+			FindFace(cs, j, k, l);
+			vtri.push_back(j);
+			//vuvi.push_back(k);
+			vni.push_back(l);
+			continue;
+		}
+	}
+
+
+	//if (pNum == 0 && triNum == 0)	return false;
+
+	mesh.p = new Point[pNum];	
+	mesh.n = new Normal[nNum];
+
+	mesh.ni = new int[3 * triNum];
+	mesh.vi = new int[3 * triNum];
+	mesh.verNum = pNum;
+	mesh.triNum = triNum;
+	mesh.nNum = nNum;
+
+	//Point
+	for (int i = 0; i < pNum; i++) {
+		mesh.p[i].x = vp[i * 3];
+		mesh.p[i].y = vp[i * 3 + 1];
+		mesh.p[i].z = vp[i * 3 + 2];
+	}
+	vp.clear();
+	vector<float>().swap(vp);
+
+	//Normal
+	for (int i = 0; i < nNum; i++) {
+		mesh.n[i].x = vn[i * 3];
+		mesh.n[i].y = vn[i * 3 + 1];
+		mesh.n[i].z = vn[i * 3 + 2];
+	}
+	vn.clear();
+	vector<float>().swap(vn);
+
+	//normal's indices
+	for (int i = 0; i < triNum; i++) {
+		mesh.ni[i * 3] = vni[i * 3];
+		mesh.ni[i * 3+1] = vni[i * 3+1];
+		mesh.ni[i * 3+2] = vni[i * 3+2];
+	}
+	vni.clear();
+	vector<int>().swap(vni);
+
+	//triangle's veretx indices
+	for (int i = 0; i < triNum; i++) {
+		mesh.vi[i * 3] = vtri[i * 3];
+		mesh.vi[i * 3 + 1] = vtri[i * 3 + 1];
+		mesh.vi[i * 3 + 2] = vtri[i * 3 + 2];
+	}
+	vtri.clear();
+	vector<int>().swap(vtri);
+
+	fl.clear();
+	fl.close();
+	ss.clear();
+
+	//vp.swap(vector<float>());
+	//vn.swap(vector<float>());
+	//vni.swap(vector<int>());
+	//vtri.swap(vector<int>());
+	//vuvi.swap(vector<int>());
+	
+}

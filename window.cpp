@@ -7,11 +7,26 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, 
 	//initialize buffer
 	for (int i = 0; i < w*h; i++) {
 		zbuffer[i] = -1.f;
-		pbuffer[4 * i] = (BYTE)255;
-		pbuffer[4 * i + 1] = (BYTE)backcolor[0];
-		pbuffer[4 * i + 2] = (BYTE)backcolor[1];
-		pbuffer[4 * i + 3] = (BYTE)backcolor[2];
+		pbuffer[4 * i] = (BYTE)backcolor[2];
+		pbuffer[4 * i + 1] = (BYTE)backcolor[1];
+		pbuffer[4 * i + 2] = (BYTE)backcolor[0];
+		pbuffer[4 * i + 3] = (BYTE)0;
 	}
+
+	//initialize DIBsection
+	bmih.biSize = sizeof(BITMAPINFOHEADER);
+	bmih.biWidth = w;
+	bmih.biHeight = h;
+	bmih.biPlanes = 1;
+	bmih.biBitCount = 32;
+	bmih.biCompression = BI_RGB;
+	bmih.biSizeImage = 0;
+	bmih.biXPelsPerMeter = 0;
+	bmih.biYPelsPerMeter = 0;
+	bmih.biClrUsed = 0;
+	bmih.biClrImportant = 0;
+	
+	hBitmap = CreateDIBSection(NULL, (BITMAPINFO*)&bmih, 0, (void**)&pBits, NULL, 0);
 
 	//initialize windows
 	WNDCLASS wc;
@@ -51,135 +66,118 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, 
 
 LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) {
 
-	//Cornell Box
 
-	float phong = 5.f;
+	float phong = 0.8f;
 	float red = 0.75,f;
 	float green = 0.55f;
 	float white = 0.9f;
+	float blue = 0.75f;
 
-	//white floor
-	Vertex vf1 = Vertex(552.8f, 0.f, 0.f, 0.75f,0.75f, 0.75f, phong,Dif);
-	Vertex vf2 = Vertex(0.f, 0.f, 0.f, 0.75f, 0.75f, 0.75f, phong,Dif);
-	Vertex vf3 = Vertex(0.f, 0.f, 559.2f, 0.75f, 0.75f, 0.75f, phong,Dif);
-	Vertex vf4 = Vertex(549.6f, 0.0f, 559.2f, 0.75f, 0.75f, 0.75f, phong,Dif);
+	TriangleMesh tMesh3, tMesh, tMesh2;
+	TriangleMesh mesh[3];
 
+	LoadObj(tMesh2, "chahu2.obj");
 
-	//Holes
-	//Vertex vh1 = Vertex(130.f, 0.f, 65.f, 0.8, 0.1, 0.1, phong, Dif);
-	//Vertex vh2 = Vertex(82.f, 0.f, 225.f, 0.8, 0.1, 0.1, phong, Dif);
-	//Vertex vh3 = Vertex(240.f, 0.f, 272.f, 0.8, 0.1, 0.1, phong, Dif);
-	//Vertex vh4 = Vertex(290.f, 0.f, 114.f, 0.8, 0.1, 0.1, phong, Dif);
+	for (int i = 0; i < tMesh2.verNum; i++)
+	{
+		tMesh2.p[i].z = -tMesh2.p[i].z;
+		tMesh2.p[i] = tMesh2.p[i] + Vector(200.f, 50.f, 200.f);
+	}
 
-	//Vertex vh5 = Vertex(423.f, 0.f, 247.f, 0.8, 0.1, 0.1, phong, Dif);
-	//Vertex vh6 = Vertex(265.f, 0.f, 295.f, 0.8, 0.1, 0.1, phong, Dif);
-	//Vertex vh7 = Vertex(314.f, 0.f, 456.f, 0.8, 0.1, 0.1, phong, Dif);
-	//Vertex vh8 = Vertex(472.f, 0.f, 406.f, 0.8, 0.1, 0.1, phong, Dif);
+	for (int i = 0; i < tMesh2.nNum; i++) {
+		tMesh2.n[i].z = -tMesh2.n[i].z;
+	}
 
-	////Light source
-	Vertex vli1 = Vertex(343.f, 545.8f, 227.f, 0.75, 0.75, 0.75, phong, 18.f, Lum);
-	Vertex vli2 = Vertex(343.f, 545.8f, 332.f, 0.75, 0.75, 0.75, phong, 18.f, Lum);
-	Vertex vli3 = Vertex(213.f, 545.8f, 332.f, 0.75, 0.75, 0.75, phong, 18.f, Lum);
-	Vertex vli4 = Vertex(213.f, 545.8f, 227.f, 0.75, 0.75, 0.75, phong, 18.f, Lum);
+	tMesh2.uv = new float[tMesh2.triNum * 3];
+	for (int i = 0; i < tMesh2.triNum; i++)
+	{
+		tMesh2.uv[3 * i] = 0.5;
+		tMesh2.uv[3 * i + 1] = 0.75;
+		tMesh2.uv[3 * i + 2] = 0.3;
+	}
 
-	
+	LoadObj(tMesh, "cornellbox.obj");
 
-	//white ceiling
-	Vertex vc1 = Vertex(556.f, 548.8f, 0.f, 0.75f, 0.75f, 0.75f, phong, Dif);
-	Vertex vc2 = Vertex(556.f, 548.8f, 559.2f, 0.75f, 0.75f, 0.75f, phong, Dif);
-	Vertex vc3 = Vertex(0.f, 548.8f, 559.2f, 0.75f, 0.75f, 0.75f, phong, Dif);
-	Vertex vc4 = Vertex(0.f, 548.8f, 0.f, 0.75f, 0.75f, 0.75f, phong, Dif);
+	tMesh.uv = new float[30];
 
-	//Holes
-	//Vertex vch1 = Vertex(343.f, 548.8f, 227.f, 0.8, 0.1, 0.1, phong, Dif);
-	//Vertex vch2 = Vertex(343.f, 548.8f, 332.f, 0.8, 0.1, 0.1, phong, Dif);
-	//Vertex vch3 = Vertex(213.f, 548.8f, 332.f, 0.8, 0.1, 0.1, phong, Dif);
-	//Vertex vch4 = Vertex(213.f, 548.8f, 227.f, 0.8, 0.1, 0.1, phong, Dif);
+	for (int i = 0; i < tMesh.verNum; i++)
+	{
+		tMesh.p[i].z = -tMesh.p[i].z;
+		tMesh.p[i] = tMesh.p[i] + Vector(279.6000, 0.0000, 276.4000);
+	}
 
-	//white back wall
-	Vertex vb1 = Vertex(549.6f, 0.f, 559.2f, 0.75f, 0.75f, 0.75f, phong,Dif);
-	Vertex vb2 = Vertex(0.f, 0.f, 559.2f, 0.75f, 0.75f, 0.75f, phong ,Dif);
-	Vertex vb3 = Vertex(0.f, 548.8f, 559.2f, 0.75f, 0.75f, 0.75f, phong, Dif);
-	Vertex vb4 = Vertex(556.f, 548.8f, 559.2f, 0.75f, 0.75f, 0.75f,phong, Dif);
+	for (int i = 0; i < tMesh.nNum; i++) {
+		tMesh.n[i].z = -tMesh.n[i].z;
+		tMesh.n[i] = -tMesh.n[i];
+	}
 
-	//red left wall
-	Vertex vl1 = Vertex(0.f, 0.f, 559.2f, red, 0.2f, 0.2f, phong, Dif);
-	Vertex vl2 = Vertex(0.f, 0.f, 0.f, red, 0.2f, 0.2f, phong, Dif);
-	Vertex vl3 = Vertex(0.f, 548.8f, 0.f, red, 0.2f, 0.2f, phong, Dif);
-	Vertex vl4 = Vertex(0.f, 548.8f, 559.2f, red, 0.2f, 0.2f, phong, Dif);
-	
+	//color
+	for (int i = 0; i < 2; i++) {
+		tMesh.uv[3 * i] = white;
+		tMesh.uv[3 * i + 1] = white;
+		tMesh.uv[3 * i + 2] = white;
+	}
 
-	//green right wall
-	Vertex vr1 = Vertex(552.8f, 0.f, 0.f, 0.2f, green, 0.2f, phong,Dif);
-	Vertex vr2 = Vertex(549.6f, 0.f, 559.2f, 0.2f, green, 0.2f, phong, Dif);
-	Vertex vr3 = Vertex(556.f, 548.8f, 559.2f, 0.2f, green, 0.2f, phong, Dif);
-	Vertex vr4 = Vertex(556.f, 548.8f, 0.f, 0.2f, green, 0.2f, phong, Dif);
+	for (int i = 2; i < 4; i++) {
+		tMesh.uv[3 * i] = white;
+		tMesh.uv[3 * i + 1] = white;
+		tMesh.uv[3 * i + 2] = white;
+	}
 
-	// Tall block
-	Vertex vt1 = Vertex(423.0, 330.0, 247.0, 0.f, .0, white, phong, Dif);
-	Vertex vt2 = Vertex(265.0, 330.0, 296.0, .0, .0, white, phong, Dif);
-	Vertex vt3 = Vertex(314.0, 330.0, 456.0, .0, .0, white, phong, Dif);
-	Vertex vt4 = Vertex(472.0, 330.0, 406.0, .0, .0, white, phong, Dif);
-		
-	Vertex vt5 = Vertex(423.0,   0.0, 247.0, .0, .0, white, phong, Dif);
-	Vertex vt6 = Vertex(265.0,   0.0, 296.0, .0, .0, white, phong, Dif);
-	Vertex vt7 = Vertex(314.0,   0.0, 456.0, .0, .0, white, phong, Dif);
-	Vertex vt8 = Vertex(472.0,   0.0, 406.0, .0, .0, white, phong, Dif);
+	for (int i = 4; i < 6; i++) {
+		tMesh.uv[3 * i] = 0.25;
+		tMesh.uv[3 * i + 1] = 0.25;
+		tMesh.uv[3 * i + 2] = blue;
+	}
 
+	for (int i = 6; i < 8; i++) {
+		tMesh.uv[3 * i] = white;
+		tMesh.uv[3 * i + 1] = white;
+		tMesh.uv[3 * i + 2] = white;
+	}
 
-	//build some triangle for cornell box
+	for (int i = 8; i < 10; i++) {
+		tMesh.uv[3 * i] = red;
+		tMesh.uv[3 * i + 1] = 0.25;
+		tMesh.uv[3 * i + 2] = 0.25;
+	}
 
-	//Tall block
-	Triangle tt1 = Triangle(vt1, vt2, vt3);
-	Triangle tt2 = Triangle(vt1, vt3, vt4);
-	Triangle tt3 = Triangle(vt1, vt2, vt6);
-	Triangle tt4 = Triangle(vt1, vt6, vt5);
-	Triangle tt5 = Triangle(vt2, vt6, vt7);
-	Triangle tt6 = Triangle(vt2, vt7, vt3);
-	Triangle tt7 = Triangle(vt3, vt7, vt8);
-	Triangle tt8 = Triangle(vt3, vt8, vt4);
-	Triangle tt9 = Triangle(vt4, vt8, vt5);
-	Triangle tt10 = Triangle(vt4, vt5, vt1);
+	LoadObj(tMesh3, "yuanzu.obj");
+	tMesh.reftype == Dif;
 
-	//floor
-	Triangle tf1 = Triangle(vf1, vf2, vf3);
-	Triangle tf2 = Triangle(vf1, vf3, vf4);
+	tMesh3.reftype = Dif;
+	tMesh3.uv = new float[tMesh3.triNum * 3];
+	for (int i = 0; i < tMesh3.triNum; i++) {
+		tMesh3.uv[3 * i] = white;
+		tMesh3.uv[3 * i + 1] = white;
+		tMesh3.uv[3 * i + 2] = 0.1;
+	}
 
-	//light
-	Triangle tli1 = Triangle(vli1, vli2, vli3);
-	Triangle tli2 = Triangle(vli1, vli3, vli4);
+	for (int i = 0; i < tMesh3.verNum; i++)
+	{
+		tMesh3.p[i].z = -tMesh3.p[i].z;
+		tMesh3.p[i] = tMesh3.p[i] + Vector(350.f, 10.f, 200.f);
+	}
 
-	//ceiling
-	Triangle tc1 = Triangle(vc1, vc2, vc3);
-	Triangle tc2 = Triangle(vc1, vc3, vc4);
+	for (int i = 0; i < tMesh3.nNum; i++) {
+		tMesh3.n[i].z = -tMesh3.n[i].z;
+	}
 
-	//back wall
-	Triangle tb1 = Triangle(vb1, vb2, vb3);
-	Triangle tb2 = Triangle(vb1, vb3, vb4);
-
-	//right wall
-	Triangle tr1 = Triangle(vr1, vr2, vr3);
-	Triangle tr2 = Triangle(vr1, vr3, vr4);
-
-	//left wall
-	Triangle tl1 = Triangle(vl1, vl2, vl3);
-	Triangle tl2 = Triangle(vl1, vl3, vl4);
-
-
-	Triangle tri[22] = { tf1,tf2,tc1,tc2,tb1,tb2,tr1,tr2,tl1,tl2,tli1,tli2,tt1,tt2,tt3,tt4,tt5,tt6,tt7,tt8,tt9,tt10};
+	mesh[0] = tMesh;
+	mesh[1] = tMesh2;
+	mesh[2] = tMesh3;
 
 
 	//viewport
-	Point eye = Point(278.f, 273.f,-800.f+0.035);
+	Point eye = Point(278.f, 273.f, -800.f + 0.035);
 	Point gaze = Point(278.f, 273.f, 0.f);
 	Vector upView = Vector(0.f, 1.f, 0.f);
-	PointLight pl = PointLight(278.f, 273.f, -800.f,4,8.f,0.1);
+	PointLight pl = PointLight(500.f, 400.f, -100.f,256,1.0, 0.2);
 	//PointLight pl2 = PointLight(100,100,0.f, 32,1.f,0.1);
-	Camera camera = Camera(eye, gaze, upView, -0.0125f, 0.0125f,-0.0125f, 0.0125f, -0.035f, -30000.f, w, h);
-
-
+	Camera camera = Camera(eye, gaze, upView, -0.0125f, 0.0125f, -0.0125f, 0.0125f, -0.035f, -30000.f, w, h);
 
 	switch (message) {
+
 	case WM_SIZE:
 		cxClient = LOWORD(lParam);
 		cyClient = HIWORD(lParam);
@@ -187,14 +185,14 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) 
 
 	case WM_PAINT:
 		//draw square
-		hdc = BeginPaint(hwnd, &ps);
-		for (int i = 0; i < 22; i++)
-			RenderPipeline(tri[i], camera, pl);
-		EndPaint(hwnd, &ps);
+		RenderPipeline(mesh, 3, camera, pl);
+		screenupdate();
 		return 0;
 
 	case WM_KEYDOWN:
-		if (wParam == VK_SPACE)	bool test = PathTrace(w, h,2, camera, tri,22,5,8);
+
+
+		if (wParam == VK_SPACE)	bool test = PathTrace(w,h,2, camera, mesh,3,5,8);
 
 	case WM_DESTROY:
 		delete zbuffer;

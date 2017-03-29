@@ -9,7 +9,7 @@ public:
 	int nx, ny;
 
 	//color buffer in backbuffer, 32 bit system , 4bytes per pixel( rank for B-G-R-A style).  
-	unsigned int* pBuffer;
+	BYTE* pBuffer;
 
 	//depth buffer in backbuffer;
 	char* zBuffer;

@@ -17,6 +17,7 @@ public:
 
 	//intersect-objection number
 	int objId;
+	int meshId;
 
 	//initialization
 	Ray() {
