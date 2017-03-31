@@ -1,5 +1,6 @@
 #include"pathtrace.h"
 
+
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, int nShowCmd) {
@@ -7,9 +8,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, 
 	//initialize buffer
 	for (int i = 0; i < w*h; i++) {
 		zbuffer[i] = -1.f;
-		pbuffer[4 * i] = (BYTE)backcolor[2];
-		pbuffer[4 * i + 1] = (BYTE)backcolor[1];
-		pbuffer[4 * i + 2] = (BYTE)backcolor[0];
+		pbuffer[4 * i] = (BYTE)(int)(backcolor[0]*255);
+		pbuffer[4 * i + 1] = (BYTE)(int)(backcolor[1] * 255);
+		pbuffer[4 * i + 2] = (BYTE)(int)(backcolor[2] * 255);
 		pbuffer[4 * i + 3] = (BYTE)0;
 	}
 
@@ -73,108 +74,47 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) 
 	float white = 0.9f;
 	float blue = 0.75f;
 
-	TriangleMesh tMesh3, tMesh, tMesh2;
-	TriangleMesh mesh[3];
+	TriangleMesh tMesh1, tMesh2, tMesh3,tMesh4;
 
-	LoadObj(tMesh2, "chahu2.obj");
+	LoadObj(tMesh1, "diban2.obj");
+	setObj(tMesh1, Dif, Ls(0.5, 0.5, 0.5),Vector(-120.f, 0, 140.f));
 
-	for (int i = 0; i < tMesh2.verNum; i++)
-	{
-		tMesh2.p[i].z = -tMesh2.p[i].z;
-		tMesh2.p[i] = tMesh2.p[i] + Vector(200.f, 50.f, 200.f);
-	}
+	LoadObj(tMesh2, "HCYuanzhu.obj");
+	setObj(tMesh2, Dif,Ls(0.8,0.8,0.0),Vector(-120.f, 0,140.f ));
+	Texture text2;
+	LoadTexture(text2, "hongci.bmp");
+	BindTexture(&text2, tMesh2);
 
-	for (int i = 0; i < tMesh2.nNum; i++) {
-		tMesh2.n[i].z = -tMesh2.n[i].z;
-	}
+	LoadObj(tMesh3, "FSHBall.obj");
+	setObj(tMesh3, Dif, Ls(white,0,0),Vector(-120.f, 0 , 140.f));
+	Texture text3;
+	float shadeTable[] = { 0.0f,0.2f,0.26,1.f };
+	Set1DTexture(text3, shadeTable,2);
+	BindTexture(&text3, tMesh3);
+	SetCartoonStyle(1, tMesh3);
+	//LoadTexture(text3, "fushihui.bmp");
+	//BindTexture(&text3, tMesh3);
 
-	tMesh2.uv = new float[tMesh2.triNum * 3];
-	for (int i = 0; i < tMesh2.triNum; i++)
-	{
-		tMesh2.uv[3 * i] = 0.5;
-		tMesh2.uv[3 * i + 1] = 0.75;
-		tMesh2.uv[3 * i + 2] = 0.3;
-	}
+	LoadObj(tMesh4, "chahu.obj");
+	setObj(tMesh4, Dif, Ls(0,white,  0), Vector(-120.f, 0, 140.f));
+	Texture text4;
+	LoadTexture(text4, "qinghuaci.bmp");
+	BindTexture(&text4, tMesh4);
 
-	LoadObj(tMesh, "cornellbox.obj");
-
-	tMesh.uv = new float[30];
-
-	for (int i = 0; i < tMesh.verNum; i++)
-	{
-		tMesh.p[i].z = -tMesh.p[i].z;
-		tMesh.p[i] = tMesh.p[i] + Vector(279.6000, 0.0000, 276.4000);
-	}
-
-	for (int i = 0; i < tMesh.nNum; i++) {
-		tMesh.n[i].z = -tMesh.n[i].z;
-		tMesh.n[i] = -tMesh.n[i];
-	}
-
-	//color
-	for (int i = 0; i < 2; i++) {
-		tMesh.uv[3 * i] = white;
-		tMesh.uv[3 * i + 1] = white;
-		tMesh.uv[3 * i + 2] = white;
-	}
-
-	for (int i = 2; i < 4; i++) {
-		tMesh.uv[3 * i] = white;
-		tMesh.uv[3 * i + 1] = white;
-		tMesh.uv[3 * i + 2] = white;
-	}
-
-	for (int i = 4; i < 6; i++) {
-		tMesh.uv[3 * i] = 0.25;
-		tMesh.uv[3 * i + 1] = 0.25;
-		tMesh.uv[3 * i + 2] = blue;
-	}
-
-	for (int i = 6; i < 8; i++) {
-		tMesh.uv[3 * i] = white;
-		tMesh.uv[3 * i + 1] = white;
-		tMesh.uv[3 * i + 2] = white;
-	}
-
-	for (int i = 8; i < 10; i++) {
-		tMesh.uv[3 * i] = red;
-		tMesh.uv[3 * i + 1] = 0.25;
-		tMesh.uv[3 * i + 2] = 0.25;
-	}
-
-	LoadObj(tMesh3, "yuanzu.obj");
-	tMesh.reftype == Dif;
-
-	tMesh3.reftype = Dif;
-	tMesh3.uv = new float[tMesh3.triNum * 3];
-	for (int i = 0; i < tMesh3.triNum; i++) {
-		tMesh3.uv[3 * i] = white;
-		tMesh3.uv[3 * i + 1] = white;
-		tMesh3.uv[3 * i + 2] = 0.1;
-	}
-
-	for (int i = 0; i < tMesh3.verNum; i++)
-	{
-		tMesh3.p[i].z = -tMesh3.p[i].z;
-		tMesh3.p[i] = tMesh3.p[i] + Vector(350.f, 10.f, 200.f);
-	}
-
-	for (int i = 0; i < tMesh3.nNum; i++) {
-		tMesh3.n[i].z = -tMesh3.n[i].z;
-	}
-
-	mesh[0] = tMesh;
-	mesh[1] = tMesh2;
-	mesh[2] = tMesh3;
-
-
-	//viewport
-	Point eye = Point(278.f, 273.f, -800.f + 0.035);
-	Point gaze = Point(278.f, 273.f, 0.f);
+	TriangleMesh mesh[4] = { tMesh1,tMesh2,tMesh3,tMesh4 };
+	Point eye = Point(0, 800, -800);
+	Point gaze = Point(0.f,0.f, 0.f);
 	Vector upView = Vector(0.f, 1.f, 0.f);
-	PointLight pl = PointLight(500.f, 400.f, -100.f,256,1.0, 0.2);
-	//PointLight pl2 = PointLight(100,100,0.f, 32,1.f,0.1);
-	Camera camera = Camera(eye, gaze, upView, -0.0125f, 0.0125f, -0.0125f, 0.0125f, -0.035f, -30000.f, w, h);
+	PointLight pl = PointLight(-2500.f, 5000.f,-2500.f,64,1,0.2);
+	float wn = -80;
+	Camera camera = Camera(eye, gaze, upView, wn, -wn, wn*h /w, -wn*h/w,-200, -30000.f, w, h);
+	//viewport
+	//Point eye = Point(278.f, 273.f, -800.f + 0.035);
+	//Point gaze = Point(278.f, 273.f, 0.f);
+	//Vector upView = Vector(0.f, 1.f, 0.f);
+	//PointLight pl = PointLight(400.f, 400.f, 0.f,256,1.0, 0.2);
+	////PointLight pl2 = PointLight(100,100,0.f, 32,1.f,0.1);
+	//Camera camera = Camera(eye, gaze, upView, -0.0125f, 0.0125f, -0.0125f, 0.0125f, -0.035f, -30000.f, w, h);
 
 	switch (message) {
 
@@ -185,14 +125,12 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) 
 
 	case WM_PAINT:
 		//draw square
-		RenderPipeline(mesh, 3, camera, pl);
+		RenderPipeline(mesh, 4, camera, pl);
 		screenupdate();
 		return 0;
 
 	case WM_KEYDOWN:
-
-
-		if (wParam == VK_SPACE)	bool test = PathTrace(w,h,2, camera, mesh,3,5,8);
+		if (wParam == VK_SPACE)	bool test = PathTrace(w,h,2, camera, mesh,4,5,8);
 
 	case WM_DESTROY:
 		delete zbuffer;

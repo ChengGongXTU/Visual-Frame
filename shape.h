@@ -1,4 +1,4 @@
-#include"camera.h"
+#include"texture.h"
 
 enum RefType
 {
@@ -12,7 +12,7 @@ public:
 	r = g = b = 0.f; alpha = 1.f; 
 	er = eg = eb = 0.f;
 	pr = pg = pb = 0.f;
-	textu = textv = 0.f;
+	textu = textv = textw = 0.f;
 	refType = Dif;
 	}
 
@@ -64,10 +64,12 @@ public:
 	float pr, pg, pb;
 
 	//texture coordinate
-	float textu, textv;
+	float textu, textv,textw;
 
 	//normal
 	Normal n;
+
+
 
 	Vertex &operator=(const Vertex &v){
 		p = v.p; 
@@ -133,7 +135,11 @@ public:
 	//number of vertex
 	int verNum;
 
+	//normal number
 	int nNum;
+
+	//texture vertex number
+	int uvNum;
 
 	// pointer to ith triangle's vertex indices
 	int *vi;
@@ -153,16 +159,33 @@ public:
 	//pointer to texture per vertex
 	float *uv;
 
+	//Diffuse
+	float kd[3];
+
+	//Ambient
+	float ka[3];
+
+	//texture buffer
+	
+	Texture* texture;
+
+	//texture flag
+	int flag;
 	RefType reftype;
 
 	//initialization
 	TriangleMesh() {
-		triNum = verNum = nNum = 0.f;
+		triNum = verNum = nNum = uvNum = 0.f;
 		vi = NULL;
 		p = NULL;
 		n = NULL;
 		uv = NULL;
 		uvi = NULL;
+		kd[0] = kd[1] = kd[2] = 0.f;
+		ka[0] = ka[1] = ka[2] = 0.0f;
+		texture = NULL;
+		flag = 0;
+
 	}
 
 	//suface normal
@@ -247,11 +270,12 @@ void LoadObj(TriangleMesh &mesh,string fileName) {
 	vni.reserve(5000);
 	vector<int> vtri;
 	vtri.reserve(5000);
-	//vector<float> vuv;
-	//vector<int> vuvi;
-	//vuvi.swap(vector<int>());
+	vector<float> vuv;
+	vuv.reserve(5000);
+	vector<int> vuvi;
+	vuvi.reserve(5000);
 
-	int pNum = 0, triNum = 0, nNum = 0;
+	int pNum = 0, triNum = 0, nNum = 0,vuNum = 0;
 	int j, k, l;
 	float a, b, c;
 	string as, bs, cs;
@@ -280,22 +304,32 @@ void LoadObj(TriangleMesh &mesh,string fileName) {
 			continue;
 		}
 
+		if ((int)word[0] == 118 && (int)word[1] == 116) {
+			vuNum++;
+			a = b = c = 0.f;
+			ss >> a >> b >> c;
+			vuv.push_back(a);
+			vuv.push_back(b);
+			vuv.push_back(c);
+			continue;
+		}
+
 		if ((int)word[0] == 102 && (int)word[1] == NULL) {
 			triNum++;
 			ss >> as >> bs >> cs;
 			FindFace(as, j, k, l);
 			vtri.push_back(j);
-			//vuvi.push_back(k);
+			vuvi.push_back(k);
 			vni.push_back(l);
 
 			FindFace(bs, j, k, l);
 			vtri.push_back(j);
-			//vuvi.push_back(k);
+			vuvi.push_back(k);
 			vni.push_back(l);
 
 			FindFace(cs, j, k, l);
 			vtri.push_back(j);
-			//vuvi.push_back(k);
+			vuvi.push_back(k);
 			vni.push_back(l);
 			continue;
 		}
@@ -306,12 +340,16 @@ void LoadObj(TriangleMesh &mesh,string fileName) {
 
 	mesh.p = new Point[pNum];	
 	mesh.n = new Normal[nNum];
+	mesh.uv = new float[3*vuNum];
 
-	mesh.ni = new int[3 * triNum];
 	mesh.vi = new int[3 * triNum];
+	mesh.uvi = new int[3 * triNum];
+	mesh.ni = new int[3 * triNum];
+	
 	mesh.verNum = pNum;
 	mesh.triNum = triNum;
 	mesh.nNum = nNum;
+	mesh.uvNum = vuNum;
 
 	//Point
 	for (int i = 0; i < pNum; i++) {
@@ -349,14 +387,49 @@ void LoadObj(TriangleMesh &mesh,string fileName) {
 	vtri.clear();
 	vector<int>().swap(vtri);
 
+	//texture's position
+	for (int i = 0; i < vuNum; i++) {
+		mesh.uv[i * 3] = vuv[i * 3];
+		mesh.uv[i * 3 + 1] = vuv[i * 3 + 1];
+		mesh.uv[i * 3 + 2] = vuv[i * 3 + 2];
+	}
+	vuv.clear();
+	vector<float>().swap(vuv);
+
+	//triangle's vertex texture indices
+	for (int i = 0; i < triNum; i++) {
+		mesh.uvi[i * 3] = vuvi[i * 3];
+		mesh.uvi[i * 3 + 1] = vuvi[i * 3 + 1];
+		mesh.uvi[i * 3 + 2] = vuvi[i * 3 + 2];
+	}
+	vuvi.clear();
+	vector<int>().swap(vuvi);
+
+
 	fl.clear();
 	fl.close();
 	ss.clear();
-
-	//vp.swap(vector<float>());
-	//vn.swap(vector<float>());
-	//vni.swap(vector<int>());
-	//vtri.swap(vector<int>());
-	//vuvi.swap(vector<int>());
 	
+}
+
+bool BindTexture(Texture*tx, TriangleMesh &mesh) {
+	mesh.texture = tx;
+	mesh.flag = 1;
+	if (mesh.texture == NULL) return false;
+	else return true;
+}
+
+
+float Get2DTexture(TriangleMesh &mesh,float textu,float textv ,int k) {
+	int i = int(textu*(mesh.texture->bmpW-1));
+	int j = int(textv*(mesh.texture->bmpH-1));
+	if (i < 0)	i = mesh.texture->bmpW + i;
+	if (j < 0)	j = mesh.texture->bmpH + j;
+	if (i > mesh.texture->bmpW)	i = i % mesh.texture->bmpW;
+	if (j > mesh.texture->bmpH)	j = j % mesh.texture->bmpH;
+	auto color = mesh.texture->tb[j*mesh.texture->lineByte + i*mesh.texture->pBitCount / 8 + k];
+	return ((unsigned int)color) / 255.f;
+}
+void SetCartoonStyle(int i,TriangleMesh &mesh){
+	if (i == 1) mesh.flag = 2;
 }

@@ -56,5 +56,11 @@
     <ClInclude Include="rand.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="dataLoad.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="texture.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

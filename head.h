@@ -23,8 +23,8 @@ std::default_random_engine generator(time(NULL));
 std::uniform_real_distribution<double> dis(0.0, 1.0);
 
 //screen size 
-int w=400, h=400;
-float backcolor[3] = { 0.f,0.f,0.f };
+int w=800, h=600;
+float backcolor[3] = { 1.f,1.f,1.f };
 
 //windows device
 static HDC hdc = 0;
@@ -105,4 +105,37 @@ bool FindFace(string &str, int &j,int &k,int &l) {
 	return true;
 }
 
+
+bool readTexture(char*bmpName, int &bmpW,int &bmpH,int &pBitCount,int &lineByte,BYTE** textBuffer)
+{
+	FILE *fp;
+	bool asd = fopen_s(&fp, bmpName, "rb");
+
+	if (fp == 0)
+		return 0;
+
+	fseek(fp, sizeof(BITMAPFILEHEADER), 0);
+
+
+	BITMAPINFOHEADER head;
+
+	fread(&head, sizeof(BITMAPINFOHEADER), 1, fp);
+
+	bmpW = head.biWidth;
+
+	bmpH = head.biHeight;
+
+	pBitCount = head.biBitCount;
+
+	lineByte = (bmpW * pBitCount / 8 + 3) / 4 * 4;
+
+
+	*textBuffer = new BYTE[lineByte * bmpH];
+
+	fread(*textBuffer, 1, lineByte * bmpH, fp);
+
+	fclose(fp);
+
+	return 1;
+}
 
