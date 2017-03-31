@@ -17,11 +17,11 @@ Maybe I will create a menu and some button in main window,but I need to write mo
 Update：
 
 2017.3.31：
-Now, you can set texture coordinate for each vertex, and load bmp to binding with Triangle mesh. You can use some software to build obj model with it bmp image texture, and input them into Visual-Frame to render.
+Now, you can set texture position for each vertex, and load bmp image, to binding with Triangle mesh. You can also use some software to build obj model with bmp-texture, and input them into Visual-Frame to render.
 
-1,texture mapping can be implemented by this Process: create texture Instance -> load texture-> binding it with triangle mesh->render it.
+1,Texture mapping can be implemented by this Process: create texture Instance -> load texture-> binding it with triangle mesh->render it.
 
-2,set a parameter named "flag" in TriangleMesh class, flag == 0 is vertex-color style, flag == 1 is texture mapping style, 
+2,Set a parameter named "flag" in TriangleMesh class, flag == 0 is vertex-color style, flag == 1 is texture mapping style, 
 and flage == 2 is a cartoon style witch is proposed by Jeff Lander on 'game developer magazine'  in March, 2000.
 
 
