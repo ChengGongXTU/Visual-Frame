@@ -1,20 +1,6 @@
-#include"light.h"
+#include"Contours.h"
 
-class Box {
-public:
-	Point minPoint, maxPoint;
 
-	Box() {}
-
-	Box(const Point &p1, const Point &p2) {
-		minPoint = Point(min(p1.x, p2.x), min(p1.y, p2.y), min(p1.z, p2.z));
-		maxPoint = Point(max(p1.x, p2.x), max(p1.y, p2.y), max(p1.z, p2.z));
-	}
-
-	friend Box Union(const Box &b, const Point &p);
-	friend Box Union(const Box &b, const Box &b2);
-
-};
 
 class DIBColor {
 public:
@@ -42,35 +28,6 @@ Triangle TriangleTransform(const Triangle &tri,const Camera &camera) {
 	newTri.n = Cross((newTri.va.p - newTri.vb.p), (newTri.va.p - newTri.vc.p));
 	newTri.n = Normalize(newTri.n);
 	return newTri;
-}
-
-
-Box Union(const Box &b, const Point &p) {
-	Box ret = b;
-	ret.minPoint.x = min(b.minPoint.x, p.x);
-	ret.minPoint.y = min(b.minPoint.y, p.y);
-	ret.minPoint.z = min(b.minPoint.z, p.z);
-	ret.maxPoint.x = max(b.maxPoint.x, p.x);
-	ret.maxPoint.y = max(b.maxPoint.y, p.y);
-	ret.maxPoint.z = max(b.maxPoint.z, p.z);
-	return ret;
-}
-
-Box Union(const Box &b, const Box &b2) {
-	Box ret;
-	ret.minPoint.x = min(b.minPoint.x, b2.minPoint.x);
-	ret.minPoint.y = min(b.minPoint.y, b2.minPoint.y);
-	ret.minPoint.z = min(b.minPoint.z, b2.minPoint.z);
-	ret.maxPoint.x = max(b.maxPoint.x, b2.maxPoint.x);
-	ret.maxPoint.y = max(b.maxPoint.y, b2.maxPoint.y);
-	ret.maxPoint.z = max(b.maxPoint.z, b2.maxPoint.z);
-	return ret;
-}
-
-void CutBox(const Camera &camera, Box *ret) {
-	if (ret->minPoint.x < 0) ret->minPoint.x = 0;
-	if (ret->minPoint.y < 0) ret->minPoint.y = 0;
-	if (ret->minPoint.z < 0) ret->minPoint.y = 0;
 }
 
 
@@ -230,8 +187,8 @@ void RenderObj(TriangleMesh &mesh, Camera &camera, PointLight &pl) {
 				if (a > 0 && b > 0 && c > 0) {
 					vt.p = a*t.va.p + b*t.vb.p + c*t.vc.p;
 					float z = a*tri.va.p.z + b*tri.vb.p.z + c*tri.vc.p.z;
-					if (z > zbuffer[i*w + j] && z<1.f&&z>-1.f) {
-						zbuffer[i*w + j] = z;
+					if (z > zbuffer[j*w + i] && z<1.f&&z>-1.f) {
+						zbuffer[j*w + i] = z;
 						if (mesh.flag == 0) {
 							vt.r = a*t.va.r + b*t.vb.r + c*t.vc.r;
 							vt.g = a*t.va.g + b*t.vb.g + c*t.vc.g;
@@ -298,6 +255,8 @@ void RenderObj(TriangleMesh &mesh, Camera &camera, PointLight &pl) {
 	}
 
 }
+
+
 
 void RenderPipeline(TriangleMesh *mesh,int meshNum,Camera &camera, PointLight &pl) {
 	for (int i = 0; i < meshNum; i++)

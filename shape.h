@@ -263,17 +263,17 @@ void LoadObj(TriangleMesh &mesh,string fileName) {
 	stringstream ss;
 	string word;
 	vector<float> vp;
-	vp.reserve(5000);
+	vp.reserve(50000);
 	vector<float> vn;
-	vn.reserve(5000);
+	vn.reserve(50000);
 	vector<int> vni;
-	vni.reserve(5000);
+	vni.reserve(50000);
 	vector<int> vtri;
-	vtri.reserve(5000);
+	vtri.reserve(50000);
 	vector<float> vuv;
-	vuv.reserve(5000);
+	vuv.reserve(50000);
 	vector<int> vuvi;
-	vuvi.reserve(5000);
+	vuvi.reserve(50000);
 
 	int pNum = 0, triNum = 0, nNum = 0,vuNum = 0;
 	int j, k, l;
@@ -432,4 +432,48 @@ float Get2DTexture(TriangleMesh &mesh,float textu,float textv ,int k) {
 }
 void SetCartoonStyle(int i,TriangleMesh &mesh){
 	if (i == 1) mesh.flag = 2;
+}
+
+class Box {
+public:
+	Point minPoint, maxPoint;
+
+	Box() {}
+
+	Box(const Point &p1, const Point &p2) {
+		minPoint = Point(min(p1.x, p2.x), min(p1.y, p2.y), min(p1.z, p2.z));
+		maxPoint = Point(max(p1.x, p2.x), max(p1.y, p2.y), max(p1.z, p2.z));
+	}
+
+	friend Box Union(const Box &b, const Point &p);
+	friend Box Union(const Box &b, const Box &b2);
+
+};
+
+Box Union(const Box &b, const Point &p) {
+	Box ret = b;
+	ret.minPoint.x = min(b.minPoint.x, p.x);
+	ret.minPoint.y = min(b.minPoint.y, p.y);
+	ret.minPoint.z = min(b.minPoint.z, p.z);
+	ret.maxPoint.x = max(b.maxPoint.x, p.x);
+	ret.maxPoint.y = max(b.maxPoint.y, p.y);
+	ret.maxPoint.z = max(b.maxPoint.z, p.z);
+	return ret;
+}
+
+Box Union(const Box &b, const Box &b2) {
+	Box ret;
+	ret.minPoint.x = min(b.minPoint.x, b2.minPoint.x);
+	ret.minPoint.y = min(b.minPoint.y, b2.minPoint.y);
+	ret.minPoint.z = min(b.minPoint.z, b2.minPoint.z);
+	ret.maxPoint.x = max(b.maxPoint.x, b2.maxPoint.x);
+	ret.maxPoint.y = max(b.maxPoint.y, b2.maxPoint.y);
+	ret.maxPoint.z = max(b.maxPoint.z, b2.maxPoint.z);
+	return ret;
+}
+
+void CutBox(const Camera &camera, Box *ret) {
+	if (ret->minPoint.x < 0) ret->minPoint.x = 0;
+	if (ret->minPoint.y < 0) ret->minPoint.y = 0;
+	if (ret->minPoint.z < 0) ret->minPoint.y = 0;
 }

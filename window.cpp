@@ -1,11 +1,21 @@
 #include"pathtrace.h"
 
 
+
+
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, int nShowCmd) {
 
+
+	/////////-----------------------------------------------graphic  setting area--------------------------------------------------------------------
 	//initialize buffer
+
+	PointLight pl;
+	Camera camera;
+	TriangleMesh* mesh;
+
+
 	for (int i = 0; i < w*h; i++) {
 		zbuffer[i] = -1.f;
 		pbuffer[4 * i] = (BYTE)(int)(backcolor[0]*255);
@@ -13,6 +23,78 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, 
 		pbuffer[4 * i + 2] = (BYTE)(int)(backcolor[2] * 255);
 		pbuffer[4 * i + 3] = (BYTE)0;
 	}
+
+	float phong = 0.8f;
+	float red = 0.75, f;
+	float green = 0.55f;
+	float white = 0.9f;
+	float blue = 0.75f;
+
+	TriangleMesh tMesh1, tMesh2, tMesh3, tMesh4,tMesh5;
+
+	LoadObj(tMesh1, "diban2.obj");
+	setObj(tMesh1, Dif, Ls(0.5, 0.5, 0.5), Vector(-80.f, 0, 140.f));
+
+	LoadObj(tMesh2, "HCYuanzhu.obj");
+	setObj(tMesh2, Dif, Ls(0.8, 0.8, 0.0), Vector(-120.f, 0, 140.f));
+	Texture text2;
+	LoadTexture(text2, "hongci.bmp");
+	BindTexture(&text2, tMesh2);
+
+	LoadObj(tMesh3, "FSHBall.obj");
+	setObj(tMesh3, Dif, Ls(0.f,0.f, white), Vector(-180.f, 0, 240.f));
+	Texture text3;
+	float shadeTable[] = { 0.0f,0.6f,0.05,1.f };
+	Set1DTexture(text3, shadeTable, 2);
+	BindTexture(&text3, tMesh3);
+	SetCartoonStyle(1, tMesh3);
+	//LoadTexture(text3, "fushihui.bmp");
+	//BindTexture(&text3, tMesh3);
+
+	LoadObj(tMesh4, "chahu.obj");
+	setObj(tMesh4, Dif, Ls(0, white, 0), Vector(-120.f, 0, 140.f));
+	Texture text4;
+	LoadTexture(text4, "qinghuaci.bmp");
+	BindTexture(&text4, tMesh4);
+
+	LoadObj(tMesh5, "yuanhuan.obj");
+	setObj(tMesh5, Dif, Ls(white, 0.f, 0.f), Vector(40,0,0));
+	Texture text5;
+	float shadeTable5[] = { 0.0f,0.4f,0.26,1.f };
+	Set1DTexture(text5, shadeTable5, 2);
+	BindTexture(&text5, tMesh5);
+	SetCartoonStyle(1, tMesh5);
+
+
+	TriangleMesh meshss[3] = { tMesh1,tMesh5,tMesh3, };
+	mesh = meshss;
+	Point eye = Point(0, 500, -800);
+	Point gaze = Point(0.f, 0.f, 0.f);
+	Vector upView = Vector(0.f, 1.f, 0.f);
+	pl = PointLight(-2500.f, 5000.f, -2500.f, 64, 1, 0.2);
+	float wn = -80;
+	camera = Camera(eye, gaze, upView, wn, -wn, wn*h / w, -wn*h / w, -300, -30000.f, w, h);
+
+	int *front = NULL;
+	int frontNumber;
+	int *back = NULL;
+	int backNumber;
+	int *edgeList = NULL;
+	int edgeNum;
+
+	RenderPipeline(mesh, 3, camera, pl);
+	FrontFaceDetect(mesh[1], camera, front, frontNumber, back, backNumber);
+	BruteForceSilhouetteDetect(mesh[1], camera, front, frontNumber, back, backNumber, edgeList, edgeNum);
+	//DrawSilhouette(mesh[1], camera, edgeList, edgeNum, pbuffer,4);
+
+	float *segmentTable;
+	float *segmentAtla;
+	int samples;
+	ProjectAndClipSegmentTable(edgeList, edgeNum, camera, mesh[1], 1, segmentTable);
+	SegmentAtlasCreation(edgeNum, segmentTable, segmentAtla, samples);
+	VisibilityTestAndDrawLine(pbuffer, zbuffer, segmentAtla, samples,segmentTable,edgeNum);
+
+	/////////-----------------------------------------------graphic  setting area----------------------------------------------------------------------------------------
 
 	//initialize DIBsection
 	bmih.biSize = sizeof(BITMAPINFOHEADER);
@@ -67,70 +149,25 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, 
 
 LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) {
 
-
-	float phong = 0.8f;
-	float red = 0.75,f;
-	float green = 0.55f;
-	float white = 0.9f;
-	float blue = 0.75f;
-
-	TriangleMesh tMesh1, tMesh2, tMesh3,tMesh4;
-
-	LoadObj(tMesh1, "diban2.obj");
-	setObj(tMesh1, Dif, Ls(0.5, 0.5, 0.5),Vector(-120.f, 0, 140.f));
-
-	LoadObj(tMesh2, "HCYuanzhu.obj");
-	setObj(tMesh2, Dif,Ls(0.8,0.8,0.0),Vector(-120.f, 0,140.f ));
-	Texture text2;
-	LoadTexture(text2, "hongci.bmp");
-	BindTexture(&text2, tMesh2);
-
-	LoadObj(tMesh3, "FSHBall.obj");
-	setObj(tMesh3, Dif, Ls(white,0,0),Vector(-120.f, 0 , 140.f));
-	Texture text3;
-	float shadeTable[] = { 0.0f,0.2f,0.26,1.f };
-	Set1DTexture(text3, shadeTable,2);
-	BindTexture(&text3, tMesh3);
-	SetCartoonStyle(1, tMesh3);
-	//LoadTexture(text3, "fushihui.bmp");
-	//BindTexture(&text3, tMesh3);
-
-	LoadObj(tMesh4, "chahu.obj");
-	setObj(tMesh4, Dif, Ls(0,white,  0), Vector(-120.f, 0, 140.f));
-	Texture text4;
-	LoadTexture(text4, "qinghuaci.bmp");
-	BindTexture(&text4, tMesh4);
-
-	TriangleMesh mesh[4] = { tMesh1,tMesh2,tMesh3,tMesh4 };
-	Point eye = Point(0, 800, -800);
-	Point gaze = Point(0.f,0.f, 0.f);
-	Vector upView = Vector(0.f, 1.f, 0.f);
-	PointLight pl = PointLight(-2500.f, 5000.f,-2500.f,64,1,0.2);
-	float wn = -80;
-	Camera camera = Camera(eye, gaze, upView, wn, -wn, wn*h /w, -wn*h/w,-200, -30000.f, w, h);
-	//viewport
-	//Point eye = Point(278.f, 273.f, -800.f + 0.035);
-	//Point gaze = Point(278.f, 273.f, 0.f);
-	//Vector upView = Vector(0.f, 1.f, 0.f);
-	//PointLight pl = PointLight(400.f, 400.f, 0.f,256,1.0, 0.2);
-	////PointLight pl2 = PointLight(100,100,0.f, 32,1.f,0.1);
-	//Camera camera = Camera(eye, gaze, upView, -0.0125f, 0.0125f, -0.0125f, 0.0125f, -0.035f, -30000.f, w, h);
-
 	switch (message) {
 
+	case WM_CREATE:
+	
 	case WM_SIZE:
 		cxClient = LOWORD(lParam);
 		cyClient = HIWORD(lParam);
 		return 0;
 
 	case WM_PAINT:
-		//draw square
-		RenderPipeline(mesh, 4, camera, pl);
+
+		/////////-----------------------------------------------graphic  setting area--------------------------------------------------------------------
+
 		screenupdate();
 		return 0;
+		/////////-----------------------------------------------graphic  setting area--------------------------------------------------------------------
 
 	case WM_KEYDOWN:
-		if (wParam == VK_SPACE)	bool test = PathTrace(w,h,2, camera, mesh,4,5,8);
+		//if (wParam == VK_SPACE)	bool test = PathTrace(w,h,2, camera, mesh,4,5,8);
 
 	case WM_DESTROY:
 		delete zbuffer;

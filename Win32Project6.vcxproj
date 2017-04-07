@@ -155,6 +155,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="camera.h" />
+    <ClInclude Include="Contours.h" />
     <ClInclude Include="dataLoad.h" />
     <ClInclude Include="device.h" />
     <ClInclude Include="geometry.h" />
