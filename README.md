@@ -16,6 +16,15 @@ Maybe I will create a menu and some button in main window,but I need to write mo
 
 Update：
 
+2017.4.7:
+In the last week, I studied some non-photorealistic rendering literature about silhouette edges extraction, and I choose the paper: "Fast High-Quality Line Visibility" (by Forrester Cole and Adam Finkelstein) to implement. The result looks good.
+(see "Cartoon+Silhouette.jpg").
+
+1, Add "Contour" part, including some function: Line-Draw, Front-Face Detection, Silhouette Detection, and Silhouette-Draw(Cole and Finkelstein 2009), I implement these function by c++, not using OpenGL or DX.
+
+
+
+
 2017.3.31：
 Now, you can set texture position for each vertex, and load bmp image, to binding with Triangle mesh. You can also use some software to build obj model with bmp-texture, and input them into Visual-Frame to render.
 
