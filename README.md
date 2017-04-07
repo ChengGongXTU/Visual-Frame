@@ -28,6 +28,7 @@ In the last week, I studied some non-photorealistic rendering literature about s
 
 
 2017.3.31：
+
 Now, you can set texture position for each vertex, and load bmp image, to binding with Triangle mesh. You can also use some software to build obj model with bmp-texture, and input them into Visual-Frame to render.
 
 1,Texture mapping can be implemented by this Process: create texture Instance -> load texture-> binding it with triangle mesh->render it.
