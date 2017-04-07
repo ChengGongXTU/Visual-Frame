@@ -9,9 +9,11 @@ This render consist of geometry part, camera part and render part, including som
 The gemetry part is build basing on "pbrt"(writing by MATT PHARR and GREG HUMPHREYS). I will add more function into render part.
 
 
-HOW TO USE IT?  Put it into visual studio 2015，and write function in "window.cpp"'s WndProc function, and run it.
+HOW TO USE IT? 
 
-Maybe I will create a menu and some button in main window,but I need to write more fundamental function before.
+Put it into visual studio 2015，and write function in "window.cpp"'s WndMain function, and run it.
+
+Maybe I will create a menu and some button in main window, but I need to write more fundamental function before.
 
 
 Update：
