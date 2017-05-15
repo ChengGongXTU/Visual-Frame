@@ -1,12 +1,12 @@
 # VISUAL-FRAME: a simple c++ render.  
-  
+  
 The mission of this project is complete!  
---------------------------------
+--------------------------------  
   
 I have learned much of things from building this project. Now, I have more knowledge and experience about computer graphic, it's time to end this project and begin new project to learn some recent CG technology.  
 -------------------  
 
-Most functions of this project will move into "SeaAsia" project, it's a DX11 + CPU Ray_Trace render software, and it has a convenient UI to controll the render pipeline and ray trace function.
+Most functions of this project will move into "SeaAsia" project, it's a DX11 + CPU Ray-Trace render software, and it has a convenient UI to controll the render pipeline and ray trace function.
 -----------------
 
 
